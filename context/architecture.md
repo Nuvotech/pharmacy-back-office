@@ -12,7 +12,7 @@ single source of truth for stock.
 | Server framework | Laravel 11 (PHP 8.3) | One app: business rules, stock ledger, FEFO, back-office pages, sync API for devices, imports, reports |
 | Database | MySQL 8 | Source of truth: catalogue, lots, stock movements, sales, users, devices |
 | Back-office UI | Inertia.js + React + TypeScript | Pharmacist screens on the laptop and back-room tablet, served by Laravel controllers; online only |
-| Back-office styling | Tailwind CSS + shadcn/ui | Components themed with the design tokens (IBM Plex Sans/Mono, primary #234B91); French UI |
+| Back-office styling | Tailwind CSS + shadcn/ui | Components themed with the design.md tokens (Poppins, slate canvas and sidebar, blue-600 accent, 4 px radius) in `resources/css/tokens.css`; French UI |
 | Front-end build | Vite (Laravel plugin) | Builds the Inertia React pages at deploy time; no Node process in production |
 | Counter app | React Native (Expo) + TypeScript | Cashier sales on the counter tablet; every sale works offline |
 | Manager app | React Native (Expo) + TypeScript | Today, alerts, product sheet, price/stock changes, offline quick sale |

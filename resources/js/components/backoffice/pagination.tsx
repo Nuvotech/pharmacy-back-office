@@ -11,9 +11,12 @@ type PaginationProps = {
 };
 
 const pageButtonClasses =
-    'inline-flex h-10 items-center rounded-input border border-border bg-surface px-3.5 text-[13px]';
+    'inline-flex h-9 items-center rounded bg-background px-3 text-sm';
 
-/** "1–10 sur 412" with Précédent / Suivant. A missing href disables the button. */
+/**
+ * Pagination footer (design.md 8.4): 56 px with a top divider, "1–10 sur 412" in slate-600 on the
+ * left, Précédent / Suivant on the right. A missing href disables the button.
+ */
 export function Pagination({
     from,
     to,
@@ -24,9 +27,9 @@ export function Pagination({
     return (
         <nav
             aria-label="Pagination"
-            className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5"
+            className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-t border-border px-6 py-2.5"
         >
-            <p className="text-[13px] text-ink-muted">
+            <p className="text-sm text-ink-muted">
                 <span className="font-mono">
                     {from}–{to}
                 </span>{' '}
@@ -43,7 +46,7 @@ export function Pagination({
                             href={href}
                             className={cn(
                                 pageButtonClasses,
-                                'font-semibold text-ink hover:bg-background',
+                                'font-medium text-ink-body hover:bg-border',
                             )}
                         >
                             {label}
@@ -52,7 +55,10 @@ export function Pagination({
                         <span
                             key={label}
                             aria-disabled="true"
-                            className={cn(pageButtonClasses, 'text-ink-muted')}
+                            className={cn(
+                                pageButtonClasses,
+                                'text-ink-faint opacity-60',
+                            )}
                         >
                             {label}
                         </span>

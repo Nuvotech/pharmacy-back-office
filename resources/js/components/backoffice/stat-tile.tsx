@@ -5,11 +5,12 @@ import { cn } from '@/lib/utils';
 
 export type StatTileTone = 'plain' | 'warning' | 'danger' | 'primary';
 
-const toneClasses: Record<StatTileTone, string> = {
-    plain: 'bg-surface text-ink shadow-card',
-    warning: 'bg-warning-soft text-warning',
-    danger: 'bg-danger-soft text-danger',
-    primary: 'bg-primary-soft text-on-primary-soft',
+/** design.md: cards stay white; the tone only colours the value ("don't colour whole cards"). */
+const valueToneClasses: Record<StatTileTone, string> = {
+    plain: 'text-ink',
+    warning: 'text-warning',
+    danger: 'text-danger',
+    primary: 'text-primary',
 };
 
 type StatTileProps = {
@@ -19,15 +20,17 @@ type StatTileProps = {
     tone?: StatTileTone;
     /** Makes the whole tile a link to the related list. */
     href?: NonNullable<InertiaLinkProps['href']>;
-    /** Shorter tile without a sub line (import summary): no minimum height, value 28. */
+    /** Compact KPI (value 20 px, no minimum height) instead of the large one (24 px). */
     isCompact?: boolean;
-    /** Muted label on a plain tile ("Lots avec écart"). */
+    /** Kept for existing call sites: labels are always the muted KPI label now. */
     isLabelMuted?: boolean;
     /** Layout overrides, e.g. a flex basis. */
     className?: string;
 };
 
-/** KPI tile: label, large mono value, small sub line. */
+/**
+ * KPI card (design.md 6.5, variant A): uppercase 12 px label, large semibold value, 14 px meta line.
+ */
 export function StatTile({
     label,
     value,
@@ -35,38 +38,29 @@ export function StatTile({
     tone = 'plain',
     href,
     isCompact = false,
-    isLabelMuted = false,
     className: extraClassName,
 }: StatTileProps) {
     const className = cn(
-        'flex flex-col gap-1 rounded-card',
-        isCompact
-            ? 'justify-start px-5 py-[18px]'
-            : 'min-h-[108px] justify-between px-[18px] py-4',
-        toneClasses[tone],
+        'flex flex-col gap-3 rounded-card bg-surface p-6 shadow-card',
         href &&
-            'transition-[filter] hover:brightness-[0.97] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
+            'transition-colors hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
         extraClassName,
     );
     const content = (
         <>
-            <span
-                className={cn(
-                    'text-[13px] font-semibold',
-                    isLabelMuted && 'text-ink-muted',
-                )}
-            >
+            <span className="text-xs font-semibold tracking-wider text-ink-muted uppercase">
                 {label}
             </span>
             <span
                 className={cn(
-                    'font-mono leading-tight font-semibold',
-                    isCompact ? 'text-[28px]' : 'text-[26px]',
+                    'font-semibold tabular-nums',
+                    isCompact ? 'text-xl leading-7' : 'text-2xl leading-8',
+                    valueToneClasses[tone],
                 )}
             >
                 {value}
             </span>
-            {sub ? <span className="text-xs opacity-85">{sub}</span> : null}
+            {sub ? <span className="text-sm text-ink-muted">{sub}</span> : null}
         </>
     );
 

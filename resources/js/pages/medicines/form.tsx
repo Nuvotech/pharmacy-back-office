@@ -32,6 +32,7 @@ type FormData = {
     dosage: string;
     form: string;
     barcode: string;
+    shelf: string;
     units_per_pack: string;
     sale_price_pack: string;
     sells_by_unit: boolean;
@@ -61,6 +62,7 @@ export default function MedicineForm({
         dosage: medicine?.dosage ?? '',
         form: medicine?.form ?? '',
         barcode: medicine?.barcode ?? '',
+        shelf: medicine?.shelf ?? '',
         units_per_pack: String(medicine?.units_per_pack ?? 1),
         sale_price_pack: medicine
             ? formatNumber(Number(medicine.sale_price_pack))
@@ -217,6 +219,17 @@ export default function MedicineForm({
                                     error={errors.barcode}
                                     isMono
                                     inputMode="numeric"
+                                />
+                                <TextField
+                                    label="Rayon (facultatif)"
+                                    value={data.shelf}
+                                    onChange={(event) =>
+                                        setData('shelf', event.target.value)
+                                    }
+                                    error={errors.shelf}
+                                    hint="Ex. A2 — sert à compter l'inventaire rayon par rayon."
+                                    isMono
+                                    autoCapitalize="characters"
                                 />
                             </div>
                             <Checkbox

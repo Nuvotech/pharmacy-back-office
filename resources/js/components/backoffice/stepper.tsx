@@ -7,7 +7,10 @@ type StepperProps = {
     currentIndex: number;
 };
 
-/** Numbered wizard steps: done (✓), current (ink), next (white, muted). */
+/**
+ * Numbered wizard steps on white pills: done (green tick, design.md "done" = green), current
+ * (blue-600), next (slate).
+ */
 export function Stepper({ steps, currentIndex }: StepperProps) {
     return (
         <ol className="flex flex-wrap gap-2" aria-label="Étapes">
@@ -20,25 +23,25 @@ export function Stepper({ steps, currentIndex }: StepperProps) {
                         key={step}
                         aria-current={isCurrent ? 'step' : undefined}
                         className={cn(
-                            'flex h-11 items-center gap-2.5 rounded-full pr-4 pl-2 text-sm font-semibold',
-                            isDone && 'bg-primary-soft text-on-primary-soft',
-                            isCurrent && 'bg-ink text-white',
-                            !isDone &&
-                                !isCurrent &&
-                                'bg-surface text-ink-muted',
+                            'flex h-[38px] items-center gap-2 rounded bg-surface pr-4 pl-2 text-sm shadow-card',
+                            isCurrent
+                                ? 'font-medium text-primary'
+                                : isDone
+                                  ? 'text-ink-body'
+                                  : 'text-ink-faint',
                         )}
                     >
                         <span
                             className={cn(
-                                'flex size-7 items-center justify-center rounded-full font-mono text-[13px] font-bold',
-                                isDone && 'bg-primary text-white',
-                                isCurrent && 'bg-white text-ink',
+                                'flex size-6 items-center justify-center rounded-full text-xs font-semibold tabular-nums',
+                                isDone && 'bg-success-soft text-success',
+                                isCurrent && 'bg-primary text-white',
                                 !isDone && !isCurrent && 'bg-background',
                             )}
                             aria-hidden
                         >
                             {isDone ? (
-                                <Check className="size-4" strokeWidth={3} />
+                                <Check className="size-3.5" strokeWidth={3} />
                             ) : (
                                 index + 1
                             )}

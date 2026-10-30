@@ -43,6 +43,8 @@ export type MedicineFormData = {
     dosage: string | null;
     form: string | null;
     barcode: string | null;
+    /** Where it is kept, e.g. "A2". */
+    shelf: string | null;
     units_per_pack: number;
     sale_price_pack: string;
     sale_price_unit: string | null;

@@ -1,6 +1,6 @@
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
-import { Button } from '@/components/backoffice/button';
+import { Button, buttonVariants } from '@/components/backoffice/button';
 import { Card } from '@/components/backoffice/card';
 import { CellLines, DataTable } from '@/components/backoffice/data-table';
 import type { DataTableColumn } from '@/components/backoffice/data-table';
@@ -10,9 +10,8 @@ import { SearchInput } from '@/components/backoffice/search-input';
 import { StatTile } from '@/components/backoffice/stat-tile';
 import { formatNumber, formatSigned, formatSignedFc } from '@/lib/format';
 import type { InventoryCountData, InventoryLine } from '@/lib/inventory';
-import { showNotAvailableYet } from '@/lib/not-available';
 import { cn } from '@/lib/utils';
-import { close, store } from '@/routes/inventory';
+import { close, print, store } from '@/routes/inventory';
 import { update as updateLine } from '@/routes/inventory/lines';
 
 type InventoryIndexProps = {
@@ -162,7 +161,9 @@ function OpenCount({
             (filter === 'uncounted' && difference === null);
         const matchesSearch =
             query === '' ||
-            `${line.medicine} ${line.lot_number}`.toLowerCase().includes(query);
+            `${line.medicine} ${line.lot_number} ${line.shelf ?? ''}`
+                .toLowerCase()
+                .includes(query);
 
         return matchesFilter && matchesSearch;
     });
@@ -235,7 +236,12 @@ function OpenCount({
             key: 'shelf',
             header: 'Rayon',
             width: '70px',
-            render: () => <span className="text-ink-faint">—</span>,
+            render: (line) =>
+                line.shelf ? (
+                    <span className="text-ink-muted">{line.shelf}</span>
+                ) : (
+                    <span className="text-ink-faint">—</span>
+                ),
         },
         {
             key: 'system',
@@ -347,12 +353,14 @@ function OpenCount({
                     </>
                 }
                 actions={
-                    <Button
-                        variant="secondary"
-                        onClick={() => showNotAvailableYet('Impression')}
+                    <a
+                        href={print(count.id).url}
+                        target="_blank"
+                        rel="noopener"
+                        className={buttonVariants({ variant: 'secondary' })}
                     >
                         Imprimer la feuille de comptage
-                    </Button>
+                    </a>
                 }
             />
             <PageContent>
@@ -408,7 +416,7 @@ function OpenCount({
                 <div className="flex flex-wrap items-center gap-2.5">
                     <SearchInput
                         label="Rechercher dans l'inventaire"
-                        placeholder="Médicament ou lot"
+                        placeholder="Médicament, lot ou rayon"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                         className="flex-[1_1_260px]"

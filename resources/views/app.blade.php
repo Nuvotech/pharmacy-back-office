@@ -7,7 +7,7 @@
         {{-- Page background before the CSS loads (--color-background in tokens.css) --}}
         <style>
             html {
-                background-color: #F4F5F2;
+                background-color: #F1F5F9;
             }
         </style>
 

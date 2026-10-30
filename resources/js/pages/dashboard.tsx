@@ -1,4 +1,4 @@
-import { Link, usePage, usePoll } from '@inertiajs/react';
+import { Link, usePoll } from '@inertiajs/react';
 import { useState } from 'react';
 import { Badge } from '@/components/backoffice/badge';
 import type { BadgeTone } from '@/components/backoffice/badge';
@@ -9,11 +9,9 @@ import type { DataTableColumn } from '@/components/backoffice/data-table';
 import { FilterChips } from '@/components/backoffice/filter-chips';
 import { PageContent, PageHeader } from '@/components/backoffice/page-header';
 import { StatTile } from '@/components/backoffice/stat-tile';
-import { useInitials } from '@/hooks/use-initials';
 import { formatCompactAmount } from '@/lib/dashboard';
 import type { AlertKind, DashboardSummary, StockAlert } from '@/lib/dashboard';
 import { formatLongDate, formatNumber } from '@/lib/format';
-import { roleLabels } from '@/lib/users';
 import { cn } from '@/lib/utils';
 import { index as adjustments } from '@/routes/adjustments';
 import { index as medicines } from '@/routes/medicines';
@@ -158,8 +156,6 @@ export default function Dashboard({
     exchangeRate,
     today,
 }: DashboardProps) {
-    const { auth } = usePage().props;
-    const getInitials = useInitials();
     const [alertFilter, setAlertFilter] = useState<AlertFilter>('all');
 
     // Sales, stock and device status change while the page is open (tablets sync every minute).
@@ -197,39 +193,21 @@ export default function Dashboard({
                 title="Tableau de bord"
                 subtitle={formatLongDate(new Date())}
                 actions={
-                    <>
-                        <Link
-                            href={settings()}
-                            className="flex h-10 items-center gap-2 rounded-input bg-background px-3.5 text-sm text-ink hover:bg-divider"
-                        >
-                            <span className="text-ink-muted">Taux du jour</span>
-                            <span className="font-mono font-semibold">
-                                {exchangeRate
-                                    ? `1 USD = ${formatNumber(Number(exchangeRate))} FC`
-                                    : '—'}
-                            </span>
-                        </Link>
-                        <div className="flex items-center gap-2.5 text-sm">
-                            <div
-                                className="flex size-9 items-center justify-center rounded-full bg-primary-soft text-[13px] font-bold text-on-primary-soft"
-                                aria-hidden
-                            >
-                                {getInitials(auth.user.name)}
-                            </div>
-                            <div>
-                                <div className="font-semibold">
-                                    {auth.user.name}
-                                </div>
-                                <div className="text-xs text-ink-muted">
-                                    {roleLabels[auth.user.role]}
-                                </div>
-                            </div>
-                        </div>
-                    </>
+                    <Link
+                        href={settings()}
+                        className="flex h-[38px] items-center gap-2 rounded bg-surface px-3 text-sm text-ink-body shadow-card hover:bg-surface-muted"
+                    >
+                        <span className="text-ink-muted">Taux du jour</span>
+                        <span className="font-semibold text-ink tabular-nums">
+                            {exchangeRate
+                                ? `1 USD = ${formatNumber(Number(exchangeRate))} FC`
+                                : '—'}
+                        </span>
+                    </Link>
                 }
             />
             <PageContent>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-3.5">
+                <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6">
                     <StatTile
                         label="Ventes du jour"
                         value={formatNumber(Number(summary.sales_today.total))}

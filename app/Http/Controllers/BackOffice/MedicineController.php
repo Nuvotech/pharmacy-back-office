@@ -121,6 +121,7 @@ class MedicineController extends Controller
                 'dosage' => $medicine->dosage,
                 'form' => $medicine->form,
                 'barcode' => $medicine->barcode,
+                'shelf' => $medicine->shelf,
                 'units_per_pack' => $medicine->units_per_pack,
                 'sale_price_pack' => bcadd($medicine->sale_price_pack, '0', 0),
                 'sale_price_unit' => $medicine->sale_price_unit === null ? null : bcadd($medicine->sale_price_unit, '0', 0),

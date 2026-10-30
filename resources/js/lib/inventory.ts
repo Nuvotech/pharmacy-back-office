@@ -9,6 +9,8 @@ export type InventoryCountData = {
 export type InventoryLine = {
     id: number;
     medicine: string;
+    /** The medicine's shelf ("A2"), or null when not set. */
+    shelf: string | null;
     lot_number: string;
     /** "MM/YYYY". */
     expiry: string;

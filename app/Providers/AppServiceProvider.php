@@ -2,11 +2,14 @@
 
 namespace App\Providers;
 
+use App\Enums\Role;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -29,6 +32,15 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureDefaults();
         $this->configureApiRateLimiting();
+        $this->configureGates();
+    }
+
+    /**
+     * Abilities not tied to one model: admins and pharmacists read the reports; cashiers only sell.
+     */
+    protected function configureGates(): void
+    {
+        Gate::define('view-reports', fn (User $user): bool => in_array($user->role, [Role::Admin, Role::Pharmacist], true));
     }
 
     /**

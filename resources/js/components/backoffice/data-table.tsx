@@ -31,8 +31,8 @@ type DataTableProps<Row> = {
 };
 
 /**
- * Card table: uppercase header row with dividers above and below, rows of at least 56 px
- * separated by a 1 px divider. Columns have fixed widths, like the grid in the design.
+ * Card table (design.md 6.9): slate-50 header row of 50 px with 12 px uppercase, widest-tracked labels;
+ * body rows of at least 52 px with no dividers (whitespace separates them), slate-50 on hover.
  */
 export function DataTable<Row>({
     columns,
@@ -60,13 +60,13 @@ export function DataTable<Row>({
                     ))}
                 </colgroup>
                 <thead className={cn(isHeaderHidden && 'sr-only')}>
-                    <tr className="border-y border-divider">
+                    <tr className="bg-surface-muted">
                         {columns.map((column) => (
                             <th
                                 key={column.key}
                                 scope="col"
                                 className={cn(
-                                    'px-1.5 py-2.5 text-xs font-semibold tracking-[0.04em] text-ink-muted uppercase first:pl-5 last:pr-5',
+                                    'h-[50px] px-2 text-xs font-semibold tracking-widest text-ink-muted uppercase first:pl-6 last:pr-6',
                                     column.align === 'right'
                                         ? 'text-right'
                                         : 'text-left',
@@ -83,14 +83,12 @@ export function DataTable<Row>({
                         ))}
                     </tr>
                 </thead>
-                <tbody
-                    className={cn(isHeaderHidden && 'border-t border-divider')}
-                >
+                <tbody>
                     {rows.length === 0 ? (
                         <tr>
                             <td
                                 colSpan={columns.length}
-                                className="px-5 py-6 text-ink-muted"
+                                className="px-6 py-8 text-center text-ink-faint"
                             >
                                 {emptyMessage}
                             </td>
@@ -100,7 +98,7 @@ export function DataTable<Row>({
                             <tr
                                 key={rowKey(row)}
                                 className={cn(
-                                    'border-b border-divider',
+                                    'transition-colors hover:bg-surface-muted',
                                     rowClassName?.(row),
                                 )}
                             >
@@ -108,9 +106,9 @@ export function DataTable<Row>({
                                     <td
                                         key={column.key}
                                         className={cn(
-                                            'h-14 px-1.5 py-2 align-middle first:pl-5 last:pr-5',
+                                            'h-[52px] px-2 py-2.5 align-middle text-ink-body first:pl-6 last:pr-6',
                                             column.align === 'right' &&
-                                                'text-right font-mono',
+                                                'text-right tabular-nums',
                                         )}
                                     >
                                         {column.render(row)}
@@ -126,7 +124,7 @@ export function DataTable<Row>({
     );
 }
 
-/** Two-line cell: main text plus a 12 px muted detail. */
+/** Two-line cell (design.md 6.9): name 14 / 500 slate-900, meta 14 slate-600, 4 px apart. */
 export function CellLines({
     main,
     detail,
@@ -136,9 +134,9 @@ export function CellLines({
 }) {
     return (
         <div className="min-w-0">
-            <div className="font-semibold">{main}</div>
+            <div className="font-medium text-ink">{main}</div>
             {detail ? (
-                <div className="text-xs text-ink-muted">{detail}</div>
+                <div className="mt-1 text-sm text-ink-muted">{detail}</div>
             ) : null}
         </div>
     );

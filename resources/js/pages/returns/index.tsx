@@ -29,6 +29,43 @@ const returnTabs: { value: ReturnKind; label: string }[] = [
 
 export default function ReturnsIndex() {
     const [kind, setKind] = useState<ReturnKind>('customer');
+
+    // Not built yet: the sample screen stays visible but greyed out and out of reach (inert) until returns
+    // are implemented.
+    return (
+        <div className="relative min-h-full">
+            <div
+                inert
+                aria-hidden
+                className="pointer-events-none opacity-50 grayscale select-none"
+            >
+                <ReturnsPreview kind={kind} setKind={setKind} />
+            </div>
+            <div className="absolute inset-0 z-10 flex items-start justify-center bg-ink/20 px-4 pt-32">
+                <div
+                    role="status"
+                    className="max-w-[440px] rounded-card bg-surface px-6 py-5 text-center shadow-card"
+                >
+                    <h1 className="text-[17px] font-bold">
+                        Retours · bientôt disponible
+                    </h1>
+                    <p className="mt-1.5 text-sm text-ink-muted">
+                        Les retours clients et fournisseurs seront ajoutés dans
+                        une prochaine version.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ReturnsPreview({
+    kind,
+    setKind,
+}: {
+    kind: ReturnKind;
+    setKind: (kind: ReturnKind) => void;
+}) {
     const tabIdPrefix = useId();
 
     return (
@@ -57,7 +94,7 @@ export default function ReturnsIndex() {
                                     className={cn(
                                         'h-10 rounded-chip px-4 text-sm',
                                         isSelected
-                                            ? 'bg-surface font-bold text-ink shadow-[0_1px_2px_rgba(22,33,29,0.08)]'
+                                            ? 'bg-surface font-medium text-ink shadow-card'
                                             : 'font-semibold text-ink-muted hover:text-ink',
                                     )}
                                 >

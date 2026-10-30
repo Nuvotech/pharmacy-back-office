@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\DB;
 class SaveMedicine
 {
     /**
-     * @param  array{name: string, dci: string|null, dosage: string|null, form: string|null, barcode: string|null, units_per_pack: int, sale_price_pack: int, sale_price_unit: int|null, min_stock_units: int, prescription_required: bool, category_slugs: list<string>}  $data  prices in whole FC
+     * @param  array{name: string, dci: string|null, dosage: string|null, form: string|null, barcode: string|null, shelf: string|null, units_per_pack: int, sale_price_pack: int, sale_price_unit: int|null, min_stock_units: int, prescription_required: bool, category_slugs: list<string>}  $data  prices in whole FC
      */
     public function handle(?Medicine $medicine, array $data): Medicine
     {
@@ -28,6 +28,7 @@ class SaveMedicine
                 'dosage' => $data['dosage'],
                 'form' => $data['form'],
                 'barcode' => $data['barcode'],
+                'shelf' => $data['shelf'],
                 'units_per_pack' => $data['units_per_pack'],
                 'sale_price_pack' => $data['sale_price_pack'],
                 'sale_price_unit' => $data['sale_price_unit'],

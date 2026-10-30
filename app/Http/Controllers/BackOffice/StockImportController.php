@@ -6,11 +6,11 @@ namespace App\Http\Controllers\BackOffice;
 
 use App\Domain\Stock\Import\CheckStockFile;
 use App\Domain\Stock\Import\ReadStockFile;
+use App\Domain\Stock\Import\StartOpeningStockImport;
 use App\Exports\StockImportErrorsExport;
 use App\Exports\StockTemplateExport;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BackOffice\UploadStockFileRequest;
-use App\Jobs\ImportOpeningStock;
 use App\Models\StockImport;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -37,7 +37,7 @@ class StockImportController extends Controller
 
         $current = StockImport::query()
             ->where('user_id', $user->id)
-            ->where('status', 'checked')
+            ->whereIn('status', ['checked', 'importing', 'failed'])
             ->latest()
             ->first();
         $done = is_string($request->query('done'))
@@ -47,6 +47,7 @@ class StockImportController extends Controller
         return Inertia::render('stock-import/create', [
             'stockImport' => $current === null ? null : [
                 'id' => $current->id,
+                'status' => $current->status,
                 'file_name' => $current->file_name,
                 'row_count' => $current->row_count,
                 'valid_count' => count($current->valid_rows),
@@ -78,8 +79,8 @@ class StockImportController extends Controller
         }
 
         DB::transaction(function () use ($user, $file, $result): void {
-            // A new file replaces the one being checked.
-            StockImport::query()->where('user_id', $user->id)->where('status', 'checked')->delete();
+            // A new file replaces the one being checked (never one being imported).
+            StockImport::query()->where('user_id', $user->id)->whereIn('status', ['checked', 'failed'])->delete();
 
             StockImport::query()->create([
                 'user_id' => $user->id,
@@ -105,25 +106,14 @@ class StockImportController extends Controller
     }
 
     /**
-     * Runs the import job now: a pharmacy file of a few thousand rows imports in seconds, and the page
-     * shows the result straight away.
+     * Queues the import; the page shows "Import en cours" and checks its status until it is done.
      */
-    public function run(Request $request, StockImport $stockImport): RedirectResponse
+    public function run(Request $request, StockImport $stockImport, StartOpeningStockImport $startImport): RedirectResponse
     {
         /** @var User $user */
         $user = $request->user();
+        $startImport->handle($stockImport, $user);
 
-        ImportOpeningStock::dispatchSync($stockImport, $user);
-        $stockImport->refresh();
-
-        Inertia::flash('toast', [
-            'type' => 'success',
-            'message' => __('stock_import.imported', [
-                'lots' => $stockImport->imported_lots,
-                'medicines' => $stockImport->created_medicines,
-            ], 'fr'),
-        ]);
-
-        return to_route('stock-import.create', ['done' => $stockImport->id]);
+        return to_route('stock-import.create');
     }
 }

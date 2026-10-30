@@ -8,13 +8,16 @@ type CardProps = {
     actions?: ReactNode;
     /** Pad the body. Turn off for full-width tables. */
     isPadded?: boolean;
-    /** Form cards: padding 22 × 24 and 16 between items, instead of 18 × 20 and 12. */
+    /** Form cards: 16 px between items instead of 12. */
     isRoomy?: boolean;
     className?: string;
     children: ReactNode;
 };
 
-/** White section card: radius 16, soft shadow, no border. */
+/**
+ * White card (design.md 6.4): radius 4, soft shadow, no border. With a title, a 56 px header with a
+ * slate-200 divider (none above a full-width table, whose header row follows); body padding 24.
+ */
 export function Card({
     title,
     actions,
@@ -24,7 +27,6 @@ export function Card({
     children,
 }: CardProps) {
     const hasHeader = Boolean(title || actions);
-    const sidePadding = isRoomy ? 'px-6' : 'px-5';
 
     return (
         <section
@@ -36,14 +38,12 @@ export function Card({
             {hasHeader ? (
                 <div
                     className={cn(
-                        'flex flex-wrap items-center gap-3',
-                        sidePadding,
-                        isRoomy ? 'pt-[22px]' : 'pt-[18px]',
-                        isPadded ? 'pb-0' : 'pb-3',
+                        'flex min-h-14 flex-wrap items-center gap-3 px-6 py-2',
+                        isPadded && 'border-b border-border',
                     )}
                 >
                     {title ? (
-                        <h2 className="flex-auto text-[17px] font-bold">
+                        <h2 className="flex-auto text-base font-medium text-ink">
                             {title}
                         </h2>
                     ) : null}
@@ -52,17 +52,8 @@ export function Card({
             ) : null}
             <div
                 className={cn(
-                    isPadded && ['flex flex-col', sidePadding],
-                    isPadded &&
-                        (isRoomy ? 'gap-4 pb-[22px]' : 'gap-3 pb-[18px]'),
-                    isPadded &&
-                        (hasHeader
-                            ? isRoomy
-                                ? 'pt-4'
-                                : 'pt-3'
-                            : isRoomy
-                              ? 'pt-[22px]'
-                              : 'pt-[18px]'),
+                    isPadded && 'flex flex-col p-6',
+                    isPadded && (isRoomy ? 'gap-4' : 'gap-3'),
                 )}
             >
                 {children}

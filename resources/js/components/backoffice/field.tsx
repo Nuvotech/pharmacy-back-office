@@ -13,11 +13,15 @@ type ControlOptions = {
     isLarge?: boolean;
 };
 
+/**
+ * design.md 6.16: 38 px input, radius 4, 1 px slate-300 border, 14 px slate-900 text, slate-400
+ * placeholder; focus blue-500 border with a 3 px blue-100 ring.
+ */
 const controlClasses = ({ isMono, isLarge }: ControlOptions) =>
     cn(
-        'w-full min-w-0 rounded-input border-[1.5px] border-border-strong bg-surface px-3 text-[15px] text-ink outline-none placeholder:text-ink-muted focus:border-primary disabled:bg-background disabled:text-ink-muted',
-        isLarge ? 'h-12' : 'h-11',
-        isMono && 'font-mono',
+        'w-full min-w-0 rounded-input border border-border-strong bg-surface px-3 text-sm text-ink outline-none placeholder:text-sidebar-item focus:border-focus focus:ring-[3px] focus:ring-primary-soft disabled:bg-background disabled:text-ink-faint',
+        isLarge ? 'h-10' : 'h-[38px]',
+        isMono && 'tabular-nums',
     );
 
 type FieldShellProps = {
@@ -45,7 +49,7 @@ function FieldShell({
 
     return (
         <div className={cn('flex min-w-0 flex-col gap-1.5', className)}>
-            <label htmlFor={id} className="text-[13px] text-ink-muted">
+            <label htmlFor={id} className="text-sm font-medium text-ink-body">
                 {label}
             </label>
             {children(id, describedBy)}
@@ -55,7 +59,7 @@ function FieldShell({
                 </p>
             ) : null}
             {hint ? (
-                <p id={hintId} className="text-xs text-ink-muted">
+                <p id={hintId} className="text-xs text-ink-faint">
                     {hint}
                 </p>
             ) : null}

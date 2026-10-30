@@ -5,23 +5,25 @@ import type { VariantProps } from 'class-variance-authority';
 import type { ButtonHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * design.md 6.7: 38 px, radius 4, 14 px / 500. Primary blue-600 (hover blue-700); secondary slate-100
+ * with slate-700 text (hover slate-200). Focus: 2 px blue-500 ring at 2 px offset.
+ */
 export const buttonVariants = cva(
-    'inline-flex shrink-0 items-center justify-center gap-2 rounded-control px-4 whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
+    'inline-flex shrink-0 items-center justify-center gap-2 rounded-control px-4 font-medium whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus disabled:pointer-events-none disabled:opacity-50 [&_svg]:size-4 [&_svg]:shrink-0',
     {
         variants: {
             variant: {
-                primary:
-                    'bg-primary font-bold text-white hover:bg-primary-hover',
-                secondary:
-                    'border border-border-strong bg-surface font-semibold text-ink hover:bg-background',
-                danger: 'bg-danger font-semibold text-white hover:bg-danger/90',
+                primary: 'bg-primary text-white hover:bg-primary-hover',
+                secondary: 'bg-background text-ink-body hover:bg-border',
+                danger: 'bg-danger text-white hover:bg-danger/90',
                 'danger-soft':
-                    'bg-danger-soft font-semibold text-danger hover:bg-danger-soft/70',
+                    'bg-danger-soft text-danger hover:bg-danger-soft/70',
             },
             size: {
-                default: 'h-11 text-sm',
-                large: 'h-12 text-[15px]',
-                small: 'h-10 text-sm',
+                default: 'h-[38px] text-sm',
+                large: 'h-10 text-sm',
+                small: 'h-9 text-sm',
             },
         },
         defaultVariants: {

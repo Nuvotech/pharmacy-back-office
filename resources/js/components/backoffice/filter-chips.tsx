@@ -17,7 +17,10 @@ type FilterChipsProps<Value extends string> = {
     isCompact?: boolean;
 };
 
-/** Single-choice filter buttons. The selected chip is ink with white text. */
+/**
+ * Single-choice filter buttons, styled like design.md's top-nav pills (6.2): 14 px slate-700 text,
+ * the selected one on a blue-50 pill in blue-700.
+ */
 export function FilterChips<Value extends string>({
     label,
     options,
@@ -37,13 +40,11 @@ export function FilterChips<Value extends string>({
                         aria-pressed={isSelected}
                         onClick={() => onSelect(option.value)}
                         className={cn(
-                            'text-[13px] font-semibold whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary',
-                            isCompact
-                                ? 'h-9 rounded-chip px-3'
-                                : 'h-11 rounded-control px-4',
+                            'rounded-md text-sm whitespace-nowrap transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
+                            isCompact ? 'h-8 px-3' : 'h-[38px] px-3',
                             isSelected
-                                ? 'bg-ink text-white'
-                                : 'text-ink-muted hover:bg-background',
+                                ? 'bg-primary-softer font-medium text-on-primary-soft'
+                                : 'text-ink-body hover:bg-surface-muted',
                         )}
                     >
                         {option.label}

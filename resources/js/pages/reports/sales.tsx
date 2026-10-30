@@ -1,5 +1,6 @@
+import { router } from '@inertiajs/react';
 import { useId } from 'react';
-import { Button } from '@/components/backoffice/button';
+import { Button, buttonVariants } from '@/components/backoffice/button';
 import { Card } from '@/components/backoffice/card';
 import { DataTable } from '@/components/backoffice/data-table';
 import type { DataTableColumn } from '@/components/backoffice/data-table';
@@ -7,52 +8,39 @@ import { PageContent, PageHeader } from '@/components/backoffice/page-header';
 import { SalesChart } from '@/components/backoffice/sales-chart';
 import { StatTile } from '@/components/backoffice/stat-tile';
 import { formatFc, formatNumber } from '@/lib/format';
-import { fcPerUsd } from '@/lib/mock/medicines';
-import {
-    dailySales,
-    productSales,
-    salesPeriods,
-    salesSyncedUntil,
-    ticketCount,
-} from '@/lib/mock/sales-report';
 import { showNotAvailableYet } from '@/lib/not-available';
+import { monthLabel, periodLabel } from '@/lib/reports';
+import type { BestSeller, SalesReportData } from '@/lib/reports';
+import { sales } from '@/routes/reports';
+import { exportMethod as exportSales } from '@/routes/reports/sales';
+
+type SalesReportProps = {
+    report: SalesReportData;
+    /** "YYYY-MM" months in the period picker, the current one first. */
+    months: string[];
+    /** 1 USD in CDF in force today, or null when no rate is recorded. */
+    exchangeRate: string | null;
+};
 
 /** A share of this size fills the whole bar, so the best sellers' bars stay readable. */
 const shareBarFullScale = 0.12;
 
-type RankedProduct = {
-    rank: number;
-    medicine: string;
-    quantityLabel: string;
-    revenue: number;
-    share: number;
-};
-
-const totalRevenue = dailySales.reduce(
-    (sum, day) => sum + day.cash + day.mobileMoney,
-    0,
-);
-const mobileMoneyRevenue = dailySales.reduce(
-    (sum, day) => sum + day.mobileMoney,
-    0,
-);
-const salesDays = dailySales.map((day) => day.cash + day.mobileMoney);
-
-const rankedProducts: RankedProduct[] = productSales
-    .map((product) => ({
-        medicine: product.medicine,
-        quantityLabel: `${formatNumber(product.quantity)} ${product.unitLabel}`,
-        revenue: product.quantity * product.unitPrice,
-    }))
-    .sort((first, second) => second.revenue - first.revenue)
-    .map((product, index) => ({
-        ...product,
-        rank: index + 1,
-        share: product.revenue / totalRevenue,
-    }));
+type RankedProduct = BestSeller & { rank: number; share: number };
 
 function formatPercent(share: number, decimals: number): string {
     return `${(share * 100).toFixed(decimals).replace('.', ',')} %`;
+}
+
+/** "12 btes", "30 u", or "12 btes · 30 u". */
+function quantityLabel(product: BestSeller): string {
+    return [
+        product.packs > 0
+            ? `${formatNumber(product.packs)} ${product.packs === 1 ? 'bte' : 'btes'}`
+            : null,
+        product.units > 0 ? `${formatNumber(product.units)} u` : null,
+    ]
+        .filter(Boolean)
+        .join(' · ');
 }
 
 const productColumns: DataTableColumn<RankedProduct>[] = [
@@ -74,16 +62,16 @@ const productColumns: DataTableColumn<RankedProduct>[] = [
     {
         key: 'quantity',
         header: 'Quantité',
-        width: '120px',
+        width: '140px',
         align: 'right',
-        render: (product) => product.quantityLabel,
+        render: (product) => quantityLabel(product),
     },
     {
         key: 'revenue',
         header: "Chiffre d'affaires",
         width: '160px',
         align: 'right',
-        render: (product) => formatFc(product.revenue),
+        render: (product) => formatFc(Number(product.revenue)),
     },
     {
         key: 'share',
@@ -107,21 +95,54 @@ const productColumns: DataTableColumn<RankedProduct>[] = [
     },
 ];
 
-export default function SalesReport() {
+export default function SalesReport({
+    report,
+    months,
+    exchangeRate,
+}: SalesReportProps) {
     const periodId = useId();
-    const lowestDay = Math.min(...salesDays);
-    const highestDay = Math.max(...salesDays);
-    const chartSummary = `Ventes quotidiennes du 1er au ${dailySales.length} octobre, entre ${formatNumber(lowestDay)} et ${formatNumber(highestDay)} FC par jour, dont ${formatPercent(mobileMoneyRevenue / totalRevenue, 0)} en mobile money.`;
+    const totalRevenue = Number(report.total);
+    const mobileMoneyRevenue = Number(report.mobile_money);
+    const mobileShare =
+        totalRevenue > 0 ? mobileMoneyRevenue / totalRevenue : 0;
+    const days = report.days.map((day) => ({
+        day: day.day,
+        cash: Number(day.cash),
+        mobileMoney: Number(day.mobile_money),
+    }));
+    const dayTotals = days.map((day) => day.cash + day.mobileMoney);
+    const rankedProducts: RankedProduct[] = report.best_sellers.map(
+        (product, index) => ({
+            ...product,
+            rank: index + 1,
+            share:
+                totalRevenue > 0 ? Number(product.revenue) / totalRevenue : 0,
+        }),
+    );
+    const monthName = monthLabel(report.month, false);
+    const chartSummary = `Ventes quotidiennes du 1er au ${days.length} ${monthName}, entre ${formatNumber(Math.min(...dayTotals, 0))} et ${formatNumber(Math.max(...dayTotals, 0))} FC par jour, dont ${formatPercent(mobileShare, 0)} en mobile money.`;
+    const syncedUntil = report.synced_until
+        ? new Intl.DateTimeFormat('fr-FR', {
+              day: '2-digit',
+              month: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit',
+          }).format(new Date(report.synced_until))
+        : null;
 
     return (
         <>
             <PageHeader
                 title="Rapport des ventes"
                 subtitle={
-                    <>
-                        Inclut les ventes synchronisées jusqu'à{' '}
-                        <span className="font-mono">{salesSyncedUntil}</span>
-                    </>
+                    syncedUntil ? (
+                        <>
+                            Inclut les ventes synchronisées jusqu'au{' '}
+                            <span className="font-mono">{syncedUntil}</span>
+                        </>
+                    ) : (
+                        'Aucune vente synchronisée pour le moment'
+                    )
                 }
                 actions={
                     <>
@@ -130,18 +151,35 @@ export default function SalesReport() {
                         </label>
                         <select
                             id={periodId}
+                            value={report.month}
+                            onChange={(event) =>
+                                router.get(
+                                    sales({
+                                        query: { month: event.target.value },
+                                    }),
+                                    {},
+                                    { preserveScroll: true },
+                                )
+                            }
                             className="h-11 rounded-control border border-border-strong bg-surface px-2.5 text-sm text-ink outline-none focus-visible:outline-2 focus-visible:outline-primary"
                         >
-                            {salesPeriods.map((period) => (
-                                <option key={period}>{period}</option>
+                            {months.map((month) => (
+                                <option key={month} value={month}>
+                                    {month === report.month
+                                        ? periodLabel(report)
+                                        : monthLabel(month)}
+                                </option>
                             ))}
                         </select>
-                        <Button
-                            variant="secondary"
-                            onClick={() => showNotAvailableYet('Export Excel')}
+                        <a
+                            href={
+                                exportSales({ query: { month: report.month } })
+                                    .url
+                            }
+                            className={buttonVariants({ variant: 'secondary' })}
                         >
                             Exporter Excel
-                        </Button>
+                        </a>
                         <Button
                             onClick={() => showNotAvailableYet('Export PDF')}
                         >
@@ -156,25 +194,33 @@ export default function SalesReport() {
                         label="Chiffre d'affaires"
                         value={formatFc(totalRevenue)}
                         sub={
-                            <>
-                                ≈{' '}
-                                <span className="font-mono">
-                                    {formatNumber(totalRevenue / fcPerUsd)}
-                                </span>{' '}
-                                USD
-                            </>
+                            exchangeRate ? (
+                                <>
+                                    ≈{' '}
+                                    <span className="font-mono">
+                                        {formatNumber(
+                                            totalRevenue / Number(exchangeRate),
+                                        )}
+                                    </span>{' '}
+                                    USD
+                                </>
+                            ) : (
+                                'taux du jour non saisi'
+                            )
                         }
                         isLabelMuted
                         className="min-h-0"
                     />
                     <StatTile
                         label="Tickets"
-                        value={formatNumber(ticketCount)}
+                        value={formatNumber(report.tickets)}
                         sub={
                             <>
                                 <span className="font-mono">
                                     {formatNumber(
-                                        ticketCount / dailySales.length,
+                                        days.length > 0
+                                            ? report.tickets / days.length
+                                            : 0,
                                     )}
                                 </span>{' '}
                                 par jour en moyenne
@@ -185,17 +231,18 @@ export default function SalesReport() {
                     />
                     <StatTile
                         label="Panier moyen"
-                        value={formatFc(totalRevenue / ticketCount)}
+                        value={formatFc(
+                            report.tickets > 0
+                                ? totalRevenue / report.tickets
+                                : 0,
+                        )}
                         sub="par ticket"
                         isLabelMuted
                         className="min-h-0"
                     />
                     <StatTile
                         label="Mobile money"
-                        value={formatPercent(
-                            mobileMoneyRevenue / totalRevenue,
-                            0,
-                        )}
+                        value={formatPercent(mobileShare, 0)}
                         sub="du chiffre d'affaires"
                         isLabelMuted
                         className="min-h-0"
@@ -214,7 +261,11 @@ export default function SalesReport() {
                         </div>
                     }
                 >
-                    <SalesChart days={dailySales} summary={chartSummary} />
+                    <SalesChart
+                        days={days}
+                        monthName={monthName}
+                        summary={chartSummary}
+                    />
                 </Card>
 
                 <Card
@@ -225,9 +276,10 @@ export default function SalesReport() {
                     <DataTable
                         columns={productColumns}
                         rows={rankedProducts}
-                        rowKey={(product) => product.medicine}
+                        rowKey={(product) => product.medicine_id}
                         minWidth={680}
                         caption="Meilleures ventes de la période, triées par chiffre d'affaires"
+                        emptyMessage="Aucune vente sur cette période"
                     />
                 </Card>
             </PageContent>

@@ -38,6 +38,7 @@ class SaveMedicineRequest extends FormRequest
             'units_per_pack' => $digits('units_per_pack'),
             'min_stock_units' => $digits('min_stock_units'),
             'barcode' => $this->filled('barcode') ? $digits('barcode') : null,
+            'shelf' => $this->filled('shelf') ? mb_strtoupper(trim($this->string('shelf')->toString())) : null,
             'prescription_required' => $this->boolean('prescription_required'),
         ]);
     }
@@ -59,6 +60,7 @@ class SaveMedicineRequest extends FormRequest
                 'regex:/^\d{4,64}$/',
                 Rule::unique(Medicine::class)->ignore($medicine instanceof Medicine ? $medicine->id : null),
             ],
+            'shelf' => ['nullable', 'string', 'max:20'],
             'units_per_pack' => ['required', 'integer', 'min:1', 'max:10000'],
             'sale_price_pack' => ['required', 'integer', 'min:0', 'max:1000000000'],
             'sale_price_unit' => ['nullable', 'integer', 'min:0', 'max:1000000000'],
@@ -91,6 +93,7 @@ class SaveMedicineRequest extends FormRequest
             'min_stock_units.min' => $message('min_stock_units_format'),
             'barcode.unique' => $message('barcode_taken'),
             'barcode.regex' => $message('barcode_format'),
+            'shelf.max' => $message('shelf_format'),
             'category_slugs.*.exists' => $message('category_unknown'),
         ];
     }
@@ -98,11 +101,11 @@ class SaveMedicineRequest extends FormRequest
     /**
      * The validated medicine, typed for SaveMedicine.
      *
-     * @return array{name: string, dci: string|null, dosage: string|null, form: string|null, barcode: string|null, units_per_pack: int, sale_price_pack: int, sale_price_unit: int|null, min_stock_units: int, prescription_required: bool, category_slugs: list<string>}
+     * @return array{name: string, dci: string|null, dosage: string|null, form: string|null, barcode: string|null, shelf: string|null, units_per_pack: int, sale_price_pack: int, sale_price_unit: int|null, min_stock_units: int, prescription_required: bool, category_slugs: list<string>}
      */
     public function medicine(): array
     {
-        /** @var array{name: string, dci?: string|null, dosage?: string|null, form?: string|null, barcode?: string|null, units_per_pack: int|string, sale_price_pack: int|string, sale_price_unit?: int|string|null, min_stock_units: int|string, prescription_required: bool, category_slugs: list<string>} $data */
+        /** @var array{name: string, dci?: string|null, dosage?: string|null, form?: string|null, barcode?: string|null, shelf?: string|null, units_per_pack: int|string, sale_price_pack: int|string, sale_price_unit?: int|string|null, min_stock_units: int|string, prescription_required: bool, category_slugs: list<string>} $data */
         $data = $this->validated();
         $blankToNull = fn (?string $value): ?string => $value === null || trim($value) === '' ? null : trim($value);
 
@@ -112,6 +115,7 @@ class SaveMedicineRequest extends FormRequest
             'dosage' => $blankToNull($data['dosage'] ?? null),
             'form' => $blankToNull($data['form'] ?? null),
             'barcode' => $blankToNull($data['barcode'] ?? null),
+            'shelf' => $blankToNull($data['shelf'] ?? null),
             'units_per_pack' => (int) $data['units_per_pack'],
             'sale_price_pack' => (int) $data['sale_price_pack'],
             'sale_price_unit' => isset($data['sale_price_unit']) ? (int) $data['sale_price_unit'] : null,

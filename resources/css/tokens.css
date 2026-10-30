@@ -1,72 +1,83 @@
 /*
-  Design tokens for the pharmacy back office.
-  Taken from the approved designs in ./screens. Use these values; don't invent new ones.
+  Design tokens for the pharmacy back office, from context/design.md ("slate and blue": dark slate
+  sidebar, white top bar, slate-100 canvas, white cards, one blue accent). Use these values; don't
+  invent new ones.
 
-  Tailwind v4 (create-next-app default): import this file in app/globals.css after
-  `@import "tailwindcss";`. The @theme block turns every token into utilities,
-  e.g. bg-ink, text-ink-muted, bg-warning-soft, rounded-card, font-mono.
-  Without Tailwind: use the CSS variables directly, e.g. var(--color-ink).
+  The token names are the ones the pages already use (bg-ink, text-ink-muted, bg-warning-soft,
+  rounded-card…); their values follow design.md section 2.
 
-  Fonts: load IBM Plex Sans (400, 500, 600, 700) and IBM Plex Mono (500, 600) with next/font/google
-  as CSS variables named --font-plex-sans and --font-plex-mono on <html>.
+  Font: Poppins (400, 500, 600), loaded by vite.config.ts as --font-poppins. design.md uses one
+  typeface everywhere, so `font-mono` is Poppins too, with tabular figures (see app.css).
 */
 
 @theme {
     /* Surfaces */
-    --color-background: #f4f5f2; /* page background, muted fills, row and box backgrounds */
-    --color-surface: #ffffff; /* cards, header bar, inputs */
-    --color-border: #e2e5e0; /* header bottom border, lot cards, secondary pagination */
-    --color-divider: #eef0ec; /* table row separators */
-    --color-border-strong: #ccd2cc; /* inputs (1.5px), secondary buttons (1px) */
+    --color-background: #f1f5f9; /* slate-100: canvas, page-header band, secondary button */
+    --color-surface: #ffffff; /* cards, top bar, inputs */
+    --color-surface-muted: #f8fafc; /* slate-50: table header row, row hover */
+    --color-border: #e2e8f0; /* slate-200: top-bar, page-header and card-header dividers */
+    --color-divider: #e2e8f0; /* slate-200 */
+    --color-border-strong: #cbd5e1; /* slate-300: input borders, header divider */
 
     /* Text */
-    --color-ink: #16211d; /* body text, sidebar background, selected chip */
-    --color-ink-muted: #5b6661; /* secondary text, table headers, unselected chips */
-    --color-ink-faint: #8a948f; /* remove (x) icons, "à compter" placeholders */
+    --color-ink: #0f172a; /* slate-900: titles, values, names */
+    --color-ink-body: #334155; /* slate-700: body text, table numbers, secondary button text */
+    --color-ink-muted: #475569; /* slate-600: labels, table headers, descriptions */
+    --color-ink-faint: #64748b; /* slate-500: meta, axis labels, icon buttons */
 
-    /* Sidebar (dark) */
-    --color-sidebar: #16211d;
-    --color-sidebar-item: #c9d1cc;
-    --color-sidebar-label: #8fa19a; /* group labels STOCK / RAPPORTS / SYSTÈME */
-    --color-sidebar-active: #2a3832;
+    /* Sidebar (dark slate) */
+    --color-sidebar: #1e293b; /* slate-800 */
+    --color-sidebar-brand: #0f172a; /* slate-900: logo bar */
+    --color-sidebar-item: #94a3b8; /* slate-400: items and icons */
+    --color-sidebar-label: #64748b; /* slate-500: section labels */
+    --color-sidebar-active: #334155; /* slate-700: optional hover tint (used at 40 %) */
+    --color-sidebar-icon-active: #3b82f6; /* blue-500: icon of the active item */
 
-    /* Brand */
-    --color-primary: #0e6b53; /* primary buttons, links, progress, chart cash bars */
-    --color-primary-hover: #0a5240; /* link hover */
-    --color-primary-soft: #e3f0ea; /* OK badge, valid-rows tile, avatar, completed step */
-    --color-primary-tint: #b9d6c9; /* sparkline bars (not the latest month) */
-    --color-on-primary-soft: #0a4a3a;
-    --color-row-tint: #f7faf8; /* "new line" entry row in the receiving table */
+    /* Accent: the only strong colour */
+    --color-primary: #2563eb; /* blue-600: primary buttons, links, active tab, chart data, progress */
+    --color-primary-hover: #1d4ed8; /* blue-700 */
+    --color-primary-soft: #dbeafe; /* blue-100: progress track, icon tiles, valid-rows tile */
+    --color-primary-softer: #eff6ff; /* blue-50 */
+    --color-primary-tint: #c7d2fe; /* indigo-200: second chart series, older sparkline months */
+    --color-on-primary-soft: #1d4ed8; /* blue-700: text on blue-100 */
+    --color-focus: #3b82f6; /* blue-500: focus ring (2 px at 2 px offset), focused input border */
+    --color-row-tint: #f8fafc; /* slate-50: "new line" entry row */
 
-    /* Status: always pair the colour with a text label, never colour alone */
-    --color-danger: #a8261b; /* rupture (out of stock), expired, negative difference, error rows */
-    --color-danger-soft: #fbe9e7;
-    --color-warning: #8a4206; /* stock bas (low stock), expire bientôt (expiring soon), offline */
-    --color-warning-soft: #fdf1e3;
-    --color-warning-dot: #d97a1e; /* offline device dot, expiring-value bars */
-    --color-warning-row: #fffaf3; /* short-dated line in the receiving table */
-    --color-info: #1f5fa8; /* positive difference (surplus) in the inventory count */
-    --color-rx: #2b3f86; /* "Rx" / prescription */
-    --color-mobile-money: #e8a04a; /* mobile money series in the sales chart */
+    /* Status: always pair the colour with a text label or an arrow, never colour alone */
+    --color-success: #16a34a; /* green-600: OK / done text */
+    --color-success-soft: #dcfce7; /* green-100 */
+    --color-success-fill: #4ade80; /* green-400: completed progress */
+    --color-danger: #dc2626; /* red-600: rupture, expired, negative difference, errors */
+    --color-danger-soft: #fee2e2; /* red-100 */
+    /*
+      Warning (stock bas, expire bientôt, hors ligne): design.md has only green and red; the pharmacy
+      needs a third state, so it uses amber. Recorded as an open question in progress-tracker.md.
+    */
+    --color-warning: #b45309; /* amber-700 */
+    --color-warning-soft: #fef3c7; /* amber-100 */
+    --color-warning-dot: #f59e0b; /* amber-500: offline dot, expiring-value bars */
+    --color-warning-row: #fffbeb; /* amber-50: short-dated line in the receiving table */
+    --color-info: #2563eb; /* blue-600: positive difference (surplus) in the inventory count */
+    --color-rx: #1d4ed8; /* blue-700: "Rx" / prescription */
+    --color-mobile-money: #c7d2fe; /* indigo-200: second series in the sales chart */
+    --color-neutral-fill: #94a3b8; /* slate-400: stale progress */
 
     /* Type */
-    --font-sans: var(--font-plex-sans), system-ui, sans-serif;
-    --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+    --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+    --font-mono: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
 
-    /* Radius */
-    --radius-chip: 9px; /* small filter buttons (36 tall) */
-    --radius-input: 10px;
-    --radius-control: 12px; /* buttons, search, lot cards */
-    --radius-card: 16px; /* section cards, KPI tiles */
+    /* Radius: 4 px everywhere (design.md section 5); pills use rounded-full */
+    --radius-chip: 4px;
+    --radius-input: 4px;
+    --radius-control: 4px;
+    --radius-card: 4px;
 
     /* Elevation */
-    --shadow-card: 0 1px 2px rgba(22, 33, 29, 0.06);
+    --shadow-card: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 
 :root {
-    --sidebar-width: 240px; /* flex-basis; collapses to a top block under ~800px */
-    --page-pad-x: 32px; /* main area side padding (16px on phones) */
-    --header-pad-y: 20px;
-    --control-h: 44px; /* buttons, search, inputs, chips */
-    --control-h-lg: 48px; /* primary actions at the bottom of forms */
+    --sidebar-width: 256px;
+    --topbar-height: 70px;
+    --page-header-height: 60px;
 }

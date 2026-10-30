@@ -178,8 +178,49 @@ change.
 
 ## In Progress
 
-- 11 Stock import (spec `06-import-du-stock.md`) — started: the full opening-stock import flow in the
-  back office.
+- 12 Reports (spec `07-Ventes-reports.md`) — code done and tested; not yet checked in the browser. Not
+  committed: the server folder is not a git repository.
+  - `App\Domain\Reports\SalesReport` (one month, the current one to today; synced sales, returned ones left
+    out): sales per day split cash / mobile money, total, tickets, 10 best sellers by revenue (boxes and units
+    sold), last sync time. `ConsumptionReport`: units sold per medicine over the last 6 months, average, stock,
+    cover (stock ÷ average), boxes to order for 2 months of cover; purchase value of expired lots in stock and
+    of those expiring in each of the next 3 months.
+  - `ReportController` behind the `view-reports` gate (admin, pharmacist; `AppServiceProvider`): pages plus
+    Excel exports (`ventes-AAAA-MM.xlsx` with two sheets, `consommation-….xlsx`, and "Bon de commande suggéré" =
+    `bon-de-commande-….xlsx` with the medicines to order). Laravel Excel 4 multi-sheet exports implement
+    `Concerns\Export`.
+  - Pages `reports/sales` (period picker over the last 6 months, in the URL) and `reports/consumption` on real
+    data, same layout as the designs; `SalesChart` now scales its axis to the data and names the month.
+    Consumption is shown in units (with the box size) and "À commander" in boxes. Still not built: "Exporter
+    PDF" (no PDF library) and the "Autres rapports" list. Mocks `sales-report.ts`, `consumption.ts` removed.
+    Pest: `BackOffice/ReportsTest.php`. Server 186/186.
+- 11 Stock import (spec `06-import-du-stock.md`) — code done and tested; not yet checked in the browser. Not
+  committed: the server folder is not a git repository.
+  - Dependency (your approval): `maatwebsite/excel` 4.0.6 (Laravel Excel, as in architecture.md). Version 4
+    needs import classes to implement `Concerns\Import` (`App\Imports\StockFileImport`) and the reader type
+    passed explicitly for uploads.
+  - Template columns (`CheckStockFile::COLUMNS`): `nom`, `dci`, `numero_lot`, `date_expiration`, `quantite`
+    (boxes, your choice), `unites_par_boite`, `prix_boite`, `prix_unite`, `prix_achat_boite` (sale and purchase
+    prices in FC, your choice). Headers are read without accents or case.
+  - `App\Domain\Stock\Import\ReadStockFile` (.xlsx or .csv, ≤ 5 MB, ≤ 5 000 rows, required columns) and
+    `CheckStockFile` (pure: dates as Excel dates, JJ/MM/AAAA, AAAA-MM-JJ or MM/AAAA = end of month; the
+    design's errors: empty or past date, text instead of a number, 0 units per box, negative quantity,
+    duplicate lot; plus a different box size for the same medicine; empty rows skipped; lot number optional).
+  - Migration `create_stock_imports_table` (checked rows and errors kept until imported; a new upload
+    replaces the user's file being checked). `App\Domain\Stock\Import\ImportOpeningStock` (all or nothing,
+    once): one "Stock initial" reception (`is_opening_stock`), one lot per row with an `opening_stock`
+    movement through the ledger; unknown medicines are created (your choice), existing ones take the file's
+    box size and sale prices; a missing lot number becomes `INIT-AAAAMMJJ-<ligne>`. Queued (your request,
+    30/10/2026): `StartOpeningStockImport` marks the file `importing` and dispatches `App\Jobs\ImportOpeningStock`
+    after commit (1 try; a failure marks the file `failed`, and the page offers "Relancer l'import"). The page
+    shows "Import en cours…" and checks every 2 s until the summary is ready.
+  - `StockImportController` (`StockImportPolicy`: admin, pharmacist): page, upload, template download
+    (`modele-stock-initial.xlsx`), error list download (`erreurs-import-stock.xlsx`), import. French messages in
+    `lang/fr/stock_import.php`.
+  - Page `stock-import/create` on real data with the design's 4 steps: Modèle (instructions and file choice, not
+    in the design), Vérification (as in the design, 50 errors shown), Import (summary, not in the design).
+    Mock `lib/mock/stock-import.ts` removed. Pest: `Stock/CheckStockFileTest.php`,
+    `BackOffice/StockImportTest.php` (CSV and real .xlsx). Server 180/180.
 
 ## Next Up
 
@@ -187,10 +228,22 @@ change.
 
 ## Open Questions
 
-- Inventory: lots have no shelf ("Rayon"), so the column is empty and the count can't be followed by shelf.
-  Add a shelf to medicines or lots? Sales are not blocked during a count: the spec overview says counts run
-  after closing; corrections are counted − expected at the start. "Imprimer la feuille de comptage" is not
-  built yet.
+- Back-office restyle (design.md, 30/10/2026): design.md has only green (good) and red (bad), but the
+  pharmacy also shows in-between states (stock bas, expire bientôt, hors ligne, short-dated lots). These use
+  amber (`--color-warning*` in tokens.css). Confirm, or say which design.md colour to use instead. The tablet
+  apps keep their own design (navy / cyan); only the web back office changed.
+
+- "Retours" and "Ajustements" are parked (your decision, 30/10/2026): their sample screens are greyed out,
+  unclickable (`inert`) and covered by a "… · bientôt disponible" notice until they are built. The
+  dashboard's "Voir le lot" / "Retirer" links and the consumption report's "Gérer les lots" still lead there.
+
+- Reports: "Exporter PDF" needs a PDF library (DomPDF is named in architecture.md, not installed); the
+  "Autres rapports" (stock status, purchases by supplier, closed counts, movements per lot, most used) have no
+  design or spec yet.
+
+- The stock import needs a queue worker (`php artisan queue:work`, or `composer run dev`, which starts one).
+  Production needs a supervised worker (Supervisor or systemd) on the droplet.
+
 
 - Shop time zone: the server runs in UTC (`app.timezone`), so "Ventes du jour" counts sales from 00:00 UTC
   (01:00 in Kinshasa, 02:00 in Lubumbashi). Which time zone is the pharmacy in?
@@ -226,6 +279,25 @@ change.
   app is at the repo root, not `apps/server`, and the mobile app is the separate `pharm-app` project.
 
 ## Architecture Decisions
+
+- Back office restyled to design.md (your request, 30/10/2026): `resources/css/tokens.css` keeps the token names
+  the pages use but takes design.md's values (slate-100 canvas, white cards, slate-800 sidebar, blue-600 accent,
+  green / red status, 4 px radius, design.md card shadow); Poppins 400/500/600 replaces IBM Plex
+  (`vite.config.ts`), and `font-mono` now means Poppins with tabular figures. The shell follows design.md 4.2:
+  fixed 256 px sidebar with a slate-900 logo bar, section labels and Lucide icons (drawer under 1024 px), a
+  70 px white top bar with the signed-in user, and a 60 px page-header band (title | breadcrumb or subtitle,
+  actions on the right). Shared components follow design.md 6: Card (56 px header with divider, 24 px
+  padding), StatTile (KPI variant A, white with a coloured value), Button (38 px, secondary slate-100), fields
+  and search (38 px, slate-300 border, blue focus ring), DataTable (slate-50 header, no row dividers, hover),
+  Badge (22 px), filter pills, pagination footer, stepper. The dashboard no longer repeats the user in its
+  header.
+
+- Inventory follow-up (your choices, 30/10/2026): the shelf ("Rayon") is kept on the medicine
+  (`medicines.shelf`, migration `add_shelf_to_medicines`), set in the medicine form and by the stock import's
+  optional `rayon` column; the inventory lists lots shelf by shelf (no shelf last) and searches by shelf.
+  Sales are not blocked during a count (counts run after closing; corrections are counted − expected at the
+  start). "Imprimer la feuille de comptage" opens a print page (`GET inventory/{count}/print`, Blade view
+  `inventory/print`) in a new tab: lots by shelf with an empty "Compté" box, print dialog on load.
 
 - PINs are hashed with bcrypt cost 8 (`User::PIN_HASH_ROUNDS`), passwords keep cost 12. The tablet checks
   PINs offline in JavaScript without a JIT, where cost 12 took ~4 s on a laptop and over 10 s on the tablet;

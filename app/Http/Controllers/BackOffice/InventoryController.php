@@ -14,6 +14,7 @@ use App\Models\InventoryCountLine;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -32,32 +33,57 @@ class InventoryController extends Controller
                 'id' => $count->id,
                 'started_at' => $count->started_at->utc()->toIso8601ZuluString(),
             ],
-            'lines' => $count === null ? [] : $count->lines()
-                ->join('batches', 'batches.id', '=', 'inventory_count_lines.batch_id')
-                ->join('medicines', 'medicines.id', '=', 'batches.medicine_id')
-                ->orderBy('medicines.name')
-                ->orderBy('batches.expiry_date')
-                ->get([
-                    'inventory_count_lines.id',
-                    'inventory_count_lines.expected_units',
-                    'inventory_count_lines.counted_units',
-                    'batches.lot_number',
-                    'batches.expiry_date',
-                    'batches.purchase_price_unit',
-                    'medicines.name as medicine_name',
-                ])
-                ->map(fn (InventoryCountLine $line): array => [
-                    'id' => $line->id,
-                    'medicine' => (string) $line->getAttribute('medicine_name'),
-                    'lot_number' => (string) $line->getAttribute('lot_number'),
-                    'expiry' => substr((string) $line->getAttribute('expiry_date'), 5, 2).'/'.substr((string) $line->getAttribute('expiry_date'), 0, 4),
-                    'expected_units' => $line->expected_units,
-                    'counted_units' => $line->counted_units,
-                    'unit_cost' => self::decimal($line->getAttribute('purchase_price_unit')),
-                ])
-                ->values(),
+            'lines' => $count === null ? [] : $this->lines($count),
             'lastClosedAt' => $lastClosed?->closed_at?->utc()->toIso8601ZuluString(),
         ]);
+    }
+
+    /**
+     * "Imprimer la feuille de comptage": the lots of the count by shelf, with an empty box to write the count.
+     */
+    public function print(InventoryCount $count): View
+    {
+        return view('inventory.print', [
+            'startedAt' => $count->started_at,
+            'lines' => $this->lines($count),
+        ]);
+    }
+
+    /**
+     * The count's lots in counting order: by shelf (lots without one last), then medicine and expiry.
+     *
+     * @return list<array{id: int, medicine: string, shelf: string|null, lot_number: string, expiry: string, expected_units: int, counted_units: int|null, unit_cost: string}>
+     */
+    private function lines(InventoryCount $count): array
+    {
+        return array_values($count->lines()
+            ->join('batches', 'batches.id', '=', 'inventory_count_lines.batch_id')
+            ->join('medicines', 'medicines.id', '=', 'batches.medicine_id')
+            ->orderByRaw('medicines.shelf IS NULL')
+            ->orderBy('medicines.shelf')
+            ->orderBy('medicines.name')
+            ->orderBy('batches.expiry_date')
+            ->get([
+                'inventory_count_lines.id',
+                'inventory_count_lines.expected_units',
+                'inventory_count_lines.counted_units',
+                'batches.lot_number',
+                'batches.expiry_date',
+                'batches.purchase_price_unit',
+                'medicines.name as medicine_name',
+                'medicines.shelf as shelf',
+            ])
+            ->map(fn (InventoryCountLine $line): array => [
+                'id' => $line->id,
+                'medicine' => (string) $line->getAttribute('medicine_name'),
+                'shelf' => is_string($line->getAttribute('shelf')) ? $line->getAttribute('shelf') : null,
+                'lot_number' => (string) $line->getAttribute('lot_number'),
+                'expiry' => substr((string) $line->getAttribute('expiry_date'), 5, 2).'/'.substr((string) $line->getAttribute('expiry_date'), 0, 4),
+                'expected_units' => $line->expected_units,
+                'counted_units' => $line->counted_units,
+                'unit_cost' => self::decimal($line->getAttribute('purchase_price_unit')),
+            ])
+            ->all());
     }
 
     /**

@@ -8,28 +8,25 @@ type SearchInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> & {
     label: string;
 };
 
-/** White search field with an icon, 44 tall. */
+/** Search field (design.md 6.16 input): 38 tall, white, slate-300 border, blue focus ring, icon. */
 export function SearchInput({ label, className, ...props }: SearchInputProps) {
     const id = useId();
 
     return (
         <div
             className={cn(
-                'flex h-11 min-w-0 items-center gap-2.5 rounded-control bg-surface px-4 shadow-card focus-within:outline-2 focus-within:outline-primary',
+                'flex h-[38px] min-w-0 items-center gap-2 rounded-input border border-border-strong bg-surface px-3 focus-within:border-focus focus-within:ring-[3px] focus-within:ring-primary-soft',
                 className,
             )}
         >
-            <Search
-                className="size-[18px] shrink-0 text-ink-muted"
-                aria-hidden
-            />
+            <Search className="size-4 shrink-0 text-ink-faint" aria-hidden />
             <label htmlFor={id} className="sr-only">
                 {label}
             </label>
             <input
                 id={id}
                 type="search"
-                className="h-full min-w-0 flex-1 bg-transparent text-[15px] text-ink outline-none placeholder:text-ink-muted"
+                className="h-full min-w-0 flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-sidebar-item"
                 {...props}
             />
         </div>

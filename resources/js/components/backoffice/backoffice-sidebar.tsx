@@ -1,6 +1,23 @@
 import { Link, usePage } from '@inertiajs/react';
 import type { InertiaLinkProps } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import {
+    BarChart3,
+    ChevronsLeft,
+    ClipboardList,
+    FileSpreadsheet,
+    LayoutDashboard,
+    LineChart,
+    LogOut,
+    PackagePlus,
+    Pill,
+    Plus,
+    RefreshCw,
+    Settings,
+    SlidersHorizontal,
+    Undo2,
+    Users,
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn } from '@/lib/utils';
 import { dashboard, logout } from '@/routes';
@@ -17,6 +34,7 @@ import type { Auth } from '@/types';
 
 type SidebarItem = {
     label: string;
+    icon: LucideIcon;
     /** Missing for screens that don't exist yet. */
     href?: NonNullable<InertiaLinkProps['href']>;
     /** Path prefix that also marks the item active, e.g. "/medicines" for its sub-pages. */
@@ -31,31 +49,49 @@ type SidebarGroup = {
 };
 
 const groups: SidebarGroup[] = [
-    { items: [{ label: 'Tableau de bord', href: dashboard() }] },
+    {
+        items: [
+            {
+                label: 'Tableau de bord',
+                icon: LayoutDashboard,
+                href: dashboard(),
+            },
+        ],
+    },
     {
         label: 'Stock',
         items: [
             {
                 label: 'Médicaments',
+                icon: Pill,
                 href: medicines(),
                 activePrefix: '/medicines',
             },
             {
                 label: 'Réceptions',
+                icon: PackagePlus,
                 href: newReception(),
                 activePrefix: '/receptions',
             },
-            { label: 'Import du stock', href: stockImport() },
-            { label: 'Inventaire', href: inventory() },
-            { label: 'Retours', href: returns() },
-            { label: 'Ajustements', href: adjustments() },
+            {
+                label: 'Import du stock',
+                icon: FileSpreadsheet,
+                href: stockImport(),
+            },
+            { label: 'Inventaire', icon: ClipboardList, href: inventory() },
+            { label: 'Retours', icon: Undo2, href: returns() },
+            {
+                label: 'Ajustements',
+                icon: SlidersHorizontal,
+                href: adjustments(),
+            },
         ],
     },
     {
         label: 'Rapports',
         items: [
-            { label: 'Ventes', href: sales() },
-            { label: 'Consommation', href: consumption() },
+            { label: 'Ventes', icon: BarChart3, href: sales() },
+            { label: 'Consommation', icon: LineChart, href: consumption() },
         ],
     },
     {
@@ -63,29 +99,37 @@ const groups: SidebarGroup[] = [
         items: [
             {
                 label: 'Paramètres',
+                icon: Settings,
                 href: settings(),
                 activePrefix: '/settings',
             },
             {
                 label: 'Utilisateurs',
+                icon: Users,
                 href: users(),
                 activePrefix: '/users',
                 isAdminOnly: true,
             },
-            { label: 'Synchronisation' },
+            { label: 'Synchronisation', icon: RefreshCw },
         ],
     },
 ];
 
+/** design.md 6.1: 36 px rows, 18 px outline icons, slate-400 → white on hover. */
 const itemClasses =
-    'flex min-h-10 w-full items-center rounded-input px-3 text-left text-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white';
+    'group flex h-9 w-full items-center gap-2.5 px-4 text-left text-sm focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white [&_svg]:size-[18px] [&_svg]:shrink-0';
 
 type BackofficeSidebarProps = {
     pharmacyName: string;
+    /** Closes the drawer on small screens (« button, or after following a link). */
+    onClose?: () => void;
 };
 
-/** Dark back-office menu. Sits on the left, and stacks above the content on narrow screens. */
-export function BackofficeSidebar({ pharmacyName }: BackofficeSidebarProps) {
+/** Dark slate back-office menu (design.md 6.1): logo bar, labelled groups, icon + label items. */
+export function BackofficeSidebar({
+    pharmacyName,
+    onClose,
+}: BackofficeSidebarProps) {
     const { currentUrl, isCurrentUrl } = useCurrentUrl();
     const { auth } = usePage<{ auth: Auth }>().props;
     const isAdmin = auth.user.role === 'admin';
@@ -99,94 +143,120 @@ export function BackofficeSidebar({ pharmacyName }: BackofficeSidebarProps) {
     return (
         <nav
             aria-label="Menu principal"
-            className="flex flex-[1_1_240px] flex-col gap-0.5 bg-sidebar px-3.5 py-5"
+            className="flex h-full w-64 flex-col overflow-y-auto bg-sidebar"
         >
-            <div className="flex items-center gap-2.5 px-2 pb-5">
-                <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary">
-                    <Plus
-                        className="size-4 text-white"
-                        strokeWidth={3}
-                        aria-hidden
-                    />
-                </div>
-                <div className="min-w-0">
-                    <div className="text-sm font-bold text-white">
+            <div className="flex h-14 shrink-0 items-center justify-between gap-2 bg-sidebar-brand px-4">
+                <div className="flex min-w-0 items-center gap-2.5">
+                    <div className="flex size-7 shrink-0 items-center justify-center rounded bg-primary">
+                        <Plus
+                            className="size-4 text-white"
+                            strokeWidth={3}
+                            aria-hidden
+                        />
+                    </div>
+                    <span className="truncate text-sm font-medium text-white">
                         {pharmacyName}
-                    </div>
-                    <div className="text-xs text-sidebar-label">
-                        Back-office
-                    </div>
+                    </span>
                 </div>
+                {onClose ? (
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        aria-label="Fermer le menu"
+                        className="flex size-8 shrink-0 items-center justify-center rounded text-sidebar-item hover:text-white"
+                    >
+                        <ChevronsLeft className="size-5" aria-hidden />
+                    </button>
+                ) : null}
             </div>
 
-            {groups.map((group, groupIndex) => (
-                <div
-                    key={group.label ?? groupIndex}
-                    className="mb-3.5 flex flex-col gap-0.5"
-                >
-                    {group.label ? (
-                        <div className="px-3 py-1.5 text-[11px] font-bold tracking-[0.08em] text-sidebar-label uppercase">
-                            {group.label}
-                        </div>
-                    ) : null}
-                    <ul className="flex flex-col gap-0.5">
-                        {group.items
-                            .filter((item) => isAdmin || !item.isAdminOnly)
-                            .map((item) => {
-                                const isItemActive = isActive(item);
+            <div className="flex flex-col pb-6">
+                {groups.map((group, groupIndex) => (
+                    <div
+                        key={group.label ?? groupIndex}
+                        className="flex flex-col"
+                    >
+                        {group.label ? (
+                            <div className="px-4 pt-5 pb-2 text-[11px] font-semibold tracking-widest text-sidebar-label uppercase">
+                                {group.label}
+                            </div>
+                        ) : (
+                            <div className="h-3" />
+                        )}
+                        <ul className="flex flex-col">
+                            {group.items
+                                .filter((item) => isAdmin || !item.isAdminOnly)
+                                .map((item) => {
+                                    const isItemActive = isActive(item);
+                                    const Icon = item.icon;
 
-                                return (
-                                    <li key={item.label}>
-                                        {item.href ? (
-                                            <Link
-                                                href={item.href}
-                                                prefetch
-                                                aria-current={
-                                                    isItemActive
-                                                        ? 'page'
-                                                        : undefined
-                                                }
-                                                className={cn(
-                                                    itemClasses,
-                                                    isItemActive
-                                                        ? 'bg-sidebar-active text-white'
-                                                        : 'text-sidebar-item hover:bg-sidebar-active/60 hover:text-white',
-                                                )}
-                                            >
-                                                {item.label}
-                                            </Link>
-                                        ) : (
-                                            <span
-                                                aria-disabled="true"
-                                                title="Bientôt disponible"
-                                                className={cn(
-                                                    itemClasses,
-                                                    'text-sidebar-item/60',
-                                                )}
-                                            >
-                                                {item.label}
-                                            </span>
+                                    return (
+                                        <li key={item.label}>
+                                            {item.href ? (
+                                                <Link
+                                                    href={item.href}
+                                                    prefetch
+                                                    onClick={onClose}
+                                                    aria-current={
+                                                        isItemActive
+                                                            ? 'page'
+                                                            : undefined
+                                                    }
+                                                    className={cn(
+                                                        itemClasses,
+                                                        isItemActive
+                                                            ? 'font-medium text-white'
+                                                            : 'text-sidebar-item hover:bg-sidebar-active/40 hover:text-white',
+                                                    )}
+                                                >
+                                                    <Icon
+                                                        strokeWidth={1.5}
+                                                        aria-hidden
+                                                        className={cn(
+                                                            isItemActive &&
+                                                                'text-sidebar-icon-active',
+                                                        )}
+                                                    />
+                                                    {item.label}
+                                                </Link>
+                                            ) : (
+                                                <span
+                                                    aria-disabled="true"
+                                                    title="Bientôt disponible"
+                                                    className={cn(
+                                                        itemClasses,
+                                                        'text-sidebar-label',
+                                                    )}
+                                                >
+                                                    <Icon
+                                                        strokeWidth={1.5}
+                                                        aria-hidden
+                                                    />
+                                                    {item.label}
+                                                </span>
+                                            )}
+                                        </li>
+                                    );
+                                })}
+                            {group.label === 'Système' ? (
+                                <li>
+                                    <Link
+                                        href={logout()}
+                                        as="button"
+                                        className={cn(
+                                            itemClasses,
+                                            'text-sidebar-item hover:bg-sidebar-active/40 hover:text-white',
                                         )}
-                                    </li>
-                                );
-                            })}
-                        {group.label === 'Système' ? (
-                            <li>
-                                <Link
-                                    href={logout()}
-                                    as="button"
-                                    className={cn(
-                                        itemClasses,
-                                        'text-sidebar-item hover:bg-sidebar-active/60 hover:text-white',
-                                    )}
-                                >
-                                    Se déconnecter
-                                </Link>
-                            </li>
-                        ) : null}
-                    </ul>
-                </div>
-            ))}
+                                    >
+                                        <LogOut strokeWidth={1.5} aria-hidden />
+                                        Se déconnecter
+                                    </Link>
+                                </li>
+                            ) : null}
+                        </ul>
+                    </div>
+                ))}
+            </div>
         </nav>
     );
 }

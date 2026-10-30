@@ -25,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property string|null $dosage
  * @property string|null $form
  * @property string|null $barcode
+ * @property string|null $shelf where it is kept, e.g. "A2"
  * @property string|null $image_path
  * @property int $units_per_pack
  * @property numeric-string $sale_price_pack
@@ -37,7 +38,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  */
 #[Fillable([
-    'name', 'dci', 'dosage', 'form', 'barcode', 'image_path', 'units_per_pack', 'sale_price_pack',
+    'name', 'dci', 'dosage', 'form', 'barcode', 'shelf', 'image_path', 'units_per_pack', 'sale_price_pack',
     'sale_price_unit', 'min_stock_units', 'prescription_required', 'is_active',
 ])]
 class Medicine extends Model

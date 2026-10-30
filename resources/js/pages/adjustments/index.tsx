@@ -136,7 +136,37 @@ const logColumns: DataTableColumn<AdjustmentLogEntry>[] = [
     },
 ];
 
+// Not built yet: the sample screen stays visible but greyed out and out of reach (inert) until adjustments
+// are implemented.
 export default function AdjustmentsIndex() {
+    return (
+        <div className="relative min-h-full">
+            <div
+                inert
+                aria-hidden
+                className="pointer-events-none opacity-50 grayscale select-none"
+            >
+                <AdjustmentsPreview />
+            </div>
+            <div className="absolute inset-0 z-10 flex items-start justify-center bg-ink/20 px-4 pt-32">
+                <div
+                    role="status"
+                    className="max-w-[440px] rounded-card bg-surface px-6 py-5 text-center shadow-card"
+                >
+                    <h1 className="text-[17px] font-bold">
+                        Ajustements · bientôt disponible
+                    </h1>
+                    <p className="mt-1.5 text-sm text-ink-muted">
+                        Les ajustements de stock et le retrait des lots expirés
+                        seront ajoutés dans une prochaine version.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function AdjustmentsPreview() {
     return (
         <>
             <PageHeader

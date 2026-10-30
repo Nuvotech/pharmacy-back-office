@@ -13,13 +13,10 @@ export default defineConfig({
             input: ['resources/css/app.css', 'resources/js/app.tsx'],
             refresh: true,
             fonts: [
-                google('IBM Plex Sans', {
-                    weights: [300, 400, 500, 600, 700],
-                    variable: '--font-plex-sans',
-                }),
-                google('IBM Plex Mono', {
-                    weights: [500, 600],
-                    variable: '--font-plex-mono',
+                // design.md: one typeface, Poppins 400 / 500 / 600.
+                google('Poppins', {
+                    weights: [400, 500, 600],
+                    variable: '--font-poppins',
                 }),
             ],
         }),

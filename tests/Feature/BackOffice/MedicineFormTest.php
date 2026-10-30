@@ -16,6 +16,7 @@ function medicinePayload(array $overrides = []): array
         'dosage' => '500 mg',
         'form' => 'Comprimé',
         'barcode' => '',
+        'shelf' => ' b1 ',
         'units_per_pack' => '50',
         'sale_price_pack' => '2 500',
         'sells_by_unit' => true,
@@ -77,6 +78,7 @@ test('saving the form updates the medicine and touches it for the tablets', func
     $medicine->refresh();
     expect($medicine->name)->toBe('MUTOMBO 50G')
         ->and($medicine->units_per_pack)->toBe(50)
+        ->and($medicine->shelf)->toBe('B1')
         ->and($medicine->sale_price_pack)->toBe('2500.00')
         ->and($medicine->sale_price_unit)->toBe('60.00')
         ->and($medicine->min_stock_units)->toBe(100)

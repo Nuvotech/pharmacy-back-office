@@ -9,13 +9,37 @@ import {
 } from 'recharts';
 import type { TooltipContentProps } from 'recharts';
 import { formatFc } from '@/lib/format';
-import type { DailySales } from '@/lib/mock/sales-report';
+
+/** One day of the chart, amounts in FC. */
+export type DailySales = {
+    day: number;
+    cash: number;
+    mobileMoney: number;
+};
 
 type SalesChartProps = {
     days: DailySales[];
+    /** "octobre": shown in the tooltip after the day number. */
+    monthName: string;
     /** Read by screen readers instead of the bars. */
     summary: string;
 };
+
+/** A round top for the Y axis and its 4 equal steps, e.g. 1 230 000 → 1 600 000 (steps of 400 000). */
+function yScale(days: DailySales[]): { max: number; ticks: number[] } {
+    const highest = Math.max(
+        ...days.map((day) => day.cash + day.mobileMoney),
+        0,
+    );
+    const rawStep = Math.max(highest / 4, 1);
+    const magnitude = 10 ** Math.floor(Math.log10(rawStep));
+    const step =
+        [1, 2, 2.5, 5, 10]
+            .map((factor) => factor * magnitude)
+            .find((candidate) => candidate >= rawStep) ?? 10 * magnitude;
+
+    return { max: step * 4, ticks: [0, step, step * 2, step * 3, step * 4] };
+}
 
 const axisTick = {
     fontFamily: 'var(--font-mono)',
@@ -23,14 +47,25 @@ const axisTick = {
     fill: 'var(--color-ink-muted)',
 };
 
-/** 0 → "0", 400 000 → "0,4 M", 1 200 000 → "1,2 M". */
-function formatMillions(value: number): string {
-    return value === 0
-        ? '0'
-        : `${(value / 1_000_000).toFixed(1).replace('.', ',')} M`;
+/** 0 → "0", 400 000 → "0,4 M", 25 000 → "25 k". */
+function formatAxisAmount(value: number): string {
+    if (value === 0) {
+        return '0';
+    }
+    if (value >= 100_000) {
+        return `${(value / 1_000_000).toFixed(1).replace('.', ',')} M`;
+    }
+
+    return value >= 1_000
+        ? `${Math.round(value / 1_000)} k`
+        : String(Math.round(value));
 }
 
-function SalesTooltip({ active, payload }: TooltipContentProps) {
+function SalesTooltip({
+    active,
+    payload,
+    monthName,
+}: TooltipContentProps & { monthName: string }) {
     const day = payload?.[0]?.payload as DailySales | undefined;
 
     if (!active || !day) {
@@ -40,7 +75,7 @@ function SalesTooltip({ active, payload }: TooltipContentProps) {
     return (
         <div className="rounded-input border border-border bg-surface px-3 py-2 text-[13px] shadow-card">
             <div className="mb-1 font-semibold">
-                <span className="font-mono">{day.day}</span> octobre
+                <span className="font-mono">{day.day}</span> {monthName}
             </div>
             <TooltipLine label="Espèces" value={day.cash} swatch="bg-primary" />
             <TooltipLine
@@ -82,7 +117,9 @@ function TooltipLine({
 }
 
 /** Stacked daily sales: cash at the bottom, mobile money on top, with exact values on hover. */
-export function SalesChart({ days, summary }: SalesChartProps) {
+export function SalesChart({ days, monthName, summary }: SalesChartProps) {
+    const scale = yScale(days);
+
     return (
         <div className="overflow-x-auto">
             <div
@@ -107,9 +144,9 @@ export function SalesChart({ days, summary }: SalesChartProps) {
                             axisLine={{ stroke: 'var(--color-border-strong)' }}
                         />
                         <YAxis
-                            domain={[0, 1_600_000]}
-                            ticks={[0, 400_000, 800_000, 1_200_000, 1_600_000]}
-                            tickFormatter={formatMillions}
+                            domain={[0, scale.max]}
+                            ticks={scale.ticks}
+                            tickFormatter={formatAxisAmount}
                             tick={axisTick}
                             tickLine={false}
                             axisLine={false}
@@ -117,7 +154,12 @@ export function SalesChart({ days, summary }: SalesChartProps) {
                         />
                         <Tooltip
                             cursor={{ fill: 'var(--color-background)' }}
-                            content={(props) => <SalesTooltip {...props} />}
+                            content={(props) => (
+                                <SalesTooltip
+                                    {...props}
+                                    monthName={monthName}
+                                />
+                            )}
                         />
                         <Bar
                             dataKey="cash"

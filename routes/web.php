@@ -4,6 +4,7 @@ use App\Http\Controllers\BackOffice\DashboardController;
 use App\Http\Controllers\BackOffice\InventoryController;
 use App\Http\Controllers\BackOffice\MedicineController;
 use App\Http\Controllers\BackOffice\ReceptionController;
+use App\Http\Controllers\BackOffice\ReportController;
 use App\Http\Controllers\BackOffice\StockImportController;
 use App\Http\Controllers\BackOffice\UserController;
 use App\Models\InventoryCount;
@@ -37,10 +38,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('inventory', [InventoryController::class, 'store'])->can('create', InventoryCount::class)->name('inventory.store');
     Route::patch('inventory/lines/{line}', [InventoryController::class, 'updateLine'])->can('create', InventoryCount::class)->name('inventory.lines.update');
     Route::post('inventory/{count}/close', [InventoryController::class, 'close'])->can('update', 'count')->name('inventory.close');
+    Route::get('inventory/{count}/print', [InventoryController::class, 'print'])->can('update', 'count')->name('inventory.print');
     Route::inertia('returns', 'returns/index')->name('returns.index');
     Route::inertia('adjustments', 'adjustments/index')->name('adjustments.index');
-    Route::inertia('reports/sales', 'reports/sales')->name('reports.sales');
-    Route::inertia('reports/consumption', 'reports/consumption')->name('reports.consumption');
+    Route::middleware('can:view-reports')->group(function () {
+        Route::get('reports/sales', [ReportController::class, 'sales'])->name('reports.sales');
+        Route::get('reports/sales/export', [ReportController::class, 'exportSales'])->name('reports.sales.export');
+        Route::get('reports/consumption', [ReportController::class, 'consumption'])->name('reports.consumption');
+        Route::get('reports/consumption/export', [ReportController::class, 'exportConsumption'])->name('reports.consumption.export');
+        Route::get('reports/consumption/order', [ReportController::class, 'exportOrder'])->name('reports.consumption.order');
+    });
 
     Route::get('users', [UserController::class, 'index'])->can('viewAny', User::class)->name('users.index');
     Route::get('users/create', [UserController::class, 'create'])->can('create', User::class)->name('users.create');

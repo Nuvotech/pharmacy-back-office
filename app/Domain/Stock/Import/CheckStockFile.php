@@ -13,7 +13,7 @@ use Throwable;
  * Checks the rows of an opening-stock file (one row per lot, columns as in the template) and splits them
  * into rows ready to import and errors to correct. Nothing is saved here.
  *
- * @phpstan-type StockRow array{line: int, name: string, dci: string|null, lot_number: string|null, expiry_date: string, packs: int, units_per_pack: int, sale_price_pack: string, sale_price_unit: string|null, purchase_price_pack: string}
+ * @phpstan-type StockRow array{line: int, name: string, dci: string|null, shelf: string|null, lot_number: string|null, expiry_date: string, packs: int, units_per_pack: int, sale_price_pack: numeric-string, sale_price_unit: numeric-string|null, purchase_price_pack: numeric-string}
  * @phpstan-type StockRowError array{line: int, medicine: string, column: string, problem: string}
  */
 class CheckStockFile
@@ -21,7 +21,7 @@ class CheckStockFile
     /** Template columns, in order. */
     public const COLUMNS = [
         'nom', 'dci', 'numero_lot', 'date_expiration', 'quantite', 'unites_par_boite', 'prix_boite',
-        'prix_unite', 'prix_achat_boite',
+        'prix_unite', 'prix_achat_boite', 'rayon',
     ];
 
     /** Rows allowed in one file. */
@@ -56,6 +56,12 @@ class CheckStockFile
                 $error('nom', 'Nom vide — chaque ligne doit nommer un médicament');
             } elseif (mb_strlen($name) > 255) {
                 $error('nom', 'Nom trop long (255 caractères au plus)');
+            }
+
+            $shelf = $this->text($row['rayon'] ?? null);
+            $shelf = $shelf === null ? null : mb_strtoupper($shelf);
+            if ($shelf !== null && mb_strlen($shelf) > 20) {
+                $error('rayon', 'Rayon trop long (20 caractères au plus)');
             }
 
             $lotNumber = $this->text($row['numero_lot'] ?? null);
@@ -108,6 +114,7 @@ class CheckStockFile
                 'line' => $line,
                 'name' => $name,
                 'dci' => $this->text($row['dci'] ?? null),
+                'shelf' => $shelf,
                 'lot_number' => $lotNumber,
                 'expiry_date' => $expiry->toDateString(),
                 'packs' => $packs,

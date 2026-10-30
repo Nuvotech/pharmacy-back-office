@@ -3,26 +3,27 @@ import { cn } from '@/lib/utils';
 
 export type BadgeTone = 'ok' | 'warning' | 'danger';
 
+/** design.md 2.2 / 6.6: green = good, red = bad; amber for the in-between pharmacy states. */
 const toneClasses: Record<BadgeTone, string> = {
-    ok: 'bg-primary-soft text-on-primary-soft',
+    ok: 'bg-success-soft text-success',
     warning: 'bg-warning-soft text-warning',
     danger: 'bg-danger-soft text-danger',
 };
 
 type BadgeProps = {
     tone: BadgeTone;
-    /** Mono text, for values such as a cover of "0,4 mois". */
+    /** Tabular figures, for values such as a cover of "0,4 mois". */
     isMono?: boolean;
     children: ReactNode;
 };
 
-/** Status label: OK, Stock bas / Expire bientôt, Rupture / Expiré. Always text plus colour. */
+/** Status badge (design.md 6.6): 22 px, radius 4, 12 / 600. Always text plus colour. */
 export function Badge({ tone, isMono = false, children }: BadgeProps) {
     return (
         <span
             className={cn(
-                'inline-block rounded-[6px] px-2 py-1 text-xs font-bold whitespace-nowrap',
-                isMono && 'font-mono',
+                'inline-flex h-[22px] items-center rounded px-2 text-xs font-semibold tracking-wide whitespace-nowrap',
+                isMono && 'tabular-nums',
                 toneClasses[tone],
             )}
         >

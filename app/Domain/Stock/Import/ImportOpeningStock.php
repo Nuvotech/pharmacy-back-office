@@ -19,7 +19,8 @@ use Illuminate\Validation\ValidationException;
 /**
  * Imports the valid rows of a checked opening-stock file, all or nothing: each row becomes a lot with an
  * `opening_stock` movement through the stock ledger, grouped under one "Stock initial" reception. A
- * medicine not in the catalogue is created; an existing one takes the file's box size and sale prices.
+ * medicine not in the catalogue is created; an existing one takes the file's box size, sale prices and
+ * shelf (when given).
  *
  * @phpstan-import-type StockRow from CheckStockFile
  */
@@ -28,18 +29,16 @@ class ImportOpeningStock
     public function __construct(private readonly RecordStockMovement $recordStockMovement) {}
 
     /**
-     * @throws ValidationException when the file was already imported or has nothing to import
+     * @throws ValidationException when the file is not waiting to be imported
      */
     public function handle(StockImport $stockImport, User $user): StockImport
     {
         return DB::transaction(function () use ($stockImport, $user): StockImport {
             $stockImport = StockImport::query()->whereKey($stockImport->id)->lockForUpdate()->firstOrFail();
 
-            if ($stockImport->status !== 'checked') {
+            // Only an import started by StartOpeningStockImport runs, so a job run twice imports once.
+            if ($stockImport->status !== 'importing') {
                 throw ValidationException::withMessages(['import' => __('stock_import.already_imported', locale: 'fr')]);
-            }
-            if ($stockImport->valid_rows === []) {
-                throw ValidationException::withMessages(['import' => __('stock_import.nothing_to_import', locale: 'fr')]);
             }
 
             $now = now();
@@ -66,6 +65,7 @@ class ImportOpeningStock
                     $medicine = Medicine::query()->create([
                         'name' => $row['name'],
                         'dci' => $row['dci'],
+                        'shelf' => $row['shelf'] ?? null,
                         'units_per_pack' => $row['units_per_pack'],
                         'sale_price_pack' => $row['sale_price_pack'],
                         'sale_price_unit' => $row['sale_price_unit'],
@@ -84,6 +84,9 @@ class ImportOpeningStock
                     }
                     if ($medicine->dci === null && $row['dci'] !== null) {
                         $medicine->dci = $row['dci'];
+                    }
+                    if (($row['shelf'] ?? null) !== null) {
+                        $medicine->shelf = $row['shelf'];
                     }
                     $medicine->save();
                 }

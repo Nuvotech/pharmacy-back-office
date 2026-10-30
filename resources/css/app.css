@@ -2,7 +2,7 @@
 
 @import 'tw-animate-css';
 
-/* Back-office design tokens (copied from design/backoffice/tokens.css; same values). */
+/* Back-office design tokens (values from context/design.md). */
 @import './tokens.css';
 
 @source '../views';
@@ -78,35 +78,35 @@
 }
 
 :root {
-    --foreground: #16211d;
+    --foreground: #334155;
     --card: #ffffff;
-    --card-foreground: #16211d;
+    --card-foreground: #0f172a;
     --popover: #ffffff;
-    --popover-foreground: #16211d;
+    --popover-foreground: #0f172a;
     --primary-foreground: #ffffff;
-    --secondary: #f4f5f2;
-    --secondary-foreground: #16211d;
-    --muted: #f4f5f2;
-    --muted-foreground: #5b6661;
-    --accent: #f4f5f2;
-    --accent-foreground: #16211d;
-    --destructive: #a8261b;
-    --destructive-foreground: #a8261b;
-    --input: #ccd2cc;
-    --ring: #0e6b53;
-    --chart-1: #0e6b53;
-    --chart-2: #e8a04a;
-    --chart-3: #1f5fa8;
-    --chart-4: #d97a1e;
-    --chart-5: #a8261b;
-    --radius: 0.625rem;
-    --sidebar-foreground: #c9d1cc;
-    --sidebar-primary: #0e6b53;
+    --secondary: #f1f5f9;
+    --secondary-foreground: #334155;
+    --muted: #f1f5f9;
+    --muted-foreground: #475569;
+    --accent: #f1f5f9;
+    --accent-foreground: #0f172a;
+    --destructive: #dc2626;
+    --destructive-foreground: #dc2626;
+    --input: #cbd5e1;
+    --ring: #3b82f6;
+    --chart-1: #1d4ed8;
+    --chart-2: #2563eb;
+    --chart-3: #c7d2fe;
+    --chart-4: #e0e7ff;
+    --chart-5: #60a5fa;
+    --radius: 0.25rem;
+    --sidebar-foreground: #94a3b8;
+    --sidebar-primary: #2563eb;
     --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #2a3832;
+    --sidebar-accent: #334155;
     --sidebar-accent-foreground: #ffffff;
-    --sidebar-border: #2a3832;
-    --sidebar-ring: #0e6b53;
+    --sidebar-border: #334155;
+    --sidebar-ring: #3b82f6;
 }
 
 @layer base {
@@ -114,8 +114,20 @@
         @apply border-border;
     }
 
+    /* design.md: 14 px slate-700 body on the slate-100 canvas. */
     body {
-        @apply bg-background text-foreground;
+        @apply bg-background text-sm text-ink-body;
+    }
+
+    /* One typeface everywhere: numbers keep Poppins, with tabular figures so columns line up. */
+    .font-mono,
+    .tabular-nums {
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Focus is always visible: 2 px blue-500 at 2 px offset. */
+    :focus-visible {
+        outline-color: var(--color-focus);
     }
 
     a:not([class]) {

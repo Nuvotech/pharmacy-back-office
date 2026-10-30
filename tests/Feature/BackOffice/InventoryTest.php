@@ -11,10 +11,10 @@ use App\Models\StockMovement;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
-function countedLot(string $medicineName, string $lotNumber, int $units): Batch
+function countedLot(string $medicineName, string $lotNumber, int $units, ?string $shelf = null): Batch
 {
     $lot = Batch::query()->create([
-        'medicine_id' => Medicine::factory()->create(['name' => $medicineName])->id,
+        'medicine_id' => Medicine::factory()->create(['name' => $medicineName, 'shelf' => $shelf])->id,
         'lot_number' => $lotNumber,
         'expiry_date' => '2027-11-30',
         'purchase_price_unit' => '100',
@@ -62,6 +62,29 @@ test('starting a count lists every lot with stock and what the system expects', 
         ->where('lines.0.counted_units', null)
         ->where('lines.0.unit_cost', '100.0000')
     );
+});
+
+test('lots are listed shelf by shelf, those without a shelf last, and the sheet prints in that order', function () {
+    countedLot('ZINC', 'Z-1', 10, 'A1');
+    countedLot('AMOXICILLINE', 'AX-1', 10, 'B2');
+    countedLot('PARACETAMOL', 'PC-1', 10);
+    countedLot('IBUPROFENE', 'IB-1', 10, 'A1');
+    $user = inventoryManager();
+    $this->actingAs($user)->post(route('inventory.store'));
+
+    $this->actingAs($user)->get(route('inventory.index'))->assertInertia(fn (Assert $page) => $page
+        ->where('lines.0.medicine', 'IBUPROFENE')
+        ->where('lines.0.shelf', 'A1')
+        ->where('lines.1.medicine', 'ZINC')
+        ->where('lines.2.shelf', 'B2')
+        ->where('lines.3.medicine', 'PARACETAMOL')
+        ->where('lines.3.shelf', null)
+    );
+
+    $this->actingAs($user)
+        ->get(route('inventory.print', InventoryCount::query()->sole()))
+        ->assertOk()
+        ->assertSeeInOrder(['Feuille de comptage', 'A1', 'IBUPROFENE', 'ZINC', 'B2', 'AMOXICILLINE', 'PARACETAMOL']);
 });
 
 test('only one count can be open at a time', function () {

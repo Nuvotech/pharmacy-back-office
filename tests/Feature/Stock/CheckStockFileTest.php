@@ -15,6 +15,7 @@ function stockRow(array $overrides = []): array
         'prix_boite' => '1 000',
         'prix_unite' => '120',
         'prix_achat_boite' => '700,50',
+        'rayon' => 'a2',
         ...$overrides,
     ];
 }
@@ -33,6 +34,7 @@ test('a complete row is ready to import, normalised', function () {
             'line' => 2,
             'name' => 'PARACETAMOL 500 MG',
             'dci' => 'Paracétamol',
+            'shelf' => 'A2',
             'lot_number' => 'PC-8810',
             'expiry_date' => '2027-11-30',
             'packs' => 34,

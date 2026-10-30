@@ -9,6 +9,7 @@ return [
     'min_stock_units_format' => 'Saisissez un seuil en unités (0 ou plus).',
     'barcode_taken' => 'Ce code-barres est déjà utilisé par un autre médicament.',
     'barcode_format' => 'Le code-barres ne contient que des chiffres.',
+    'shelf_format' => 'Le rayon tient en 20 caractères au plus, par exemple A2.',
     'category_unknown' => 'Choisissez une catégorie de la liste.',
     'created' => 'Médicament créé.',
     'updated' => 'Médicament enregistré.',
