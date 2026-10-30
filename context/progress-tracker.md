@@ -319,4 +319,9 @@ change.
 
 ## Session Notes
 
+- Deployment: create the real administrator with `php artisan pharmacy:create-admin` (asks name, e-mail,
+  password twice, and optionally a tablet username + PIN; strong passwords in production). Then deactivate
+  the seeded test accounts (`mbuyi@example.com`, `test@example.com`, `j.mbuyi`, `patrick.k`, `grace.m`) in
+  "Utilisateurs". Pest: `tests/Feature/Console/CreateAdminTest.php`.
+
 - Server tests: `php artisan test --compact tests/Feature/Api`. App tests: `npx jest` in pharm-app.
