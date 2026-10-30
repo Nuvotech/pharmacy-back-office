@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Nouvelle réception</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Nouvelle réception</h1>
+        <div style="font-size: 13px; color: #5B6661">Brouillon enregistré à 09:40</div>
+      </div>
+      <button style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; font: inherit; font-weight: 600; font-size: 14px; color: #16211D">Enregistrer le brouillon</button>
+      <button style="height: 44px; padding: 0 20px; border-radius: 12px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-weight: 700; font-size: 14px">Valider la réception</button>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+      <section style="background: #FFFFFF; border-radius: 16px; padding: 20px 24px; box-shadow: 0 1px 2px rgba(22,33,29,0.06)">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px 16px">
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Fournisseur
+            <select style="height: 44px; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D; background: #FFFFFF"><option>[GROSSISTE A]</option></select></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">N° bon de livraison / facture
+            <input type="text" value="BL-2026-1187" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Date de réception
+            <input type="text" value="23/10/2026" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D"></label>
+          <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Devise de la facture
+            <select style="height: 44px; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D; background: #FFFFFF"><option>USD</option><option>FC</option></select></label>
+        </div>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+        <section style="flex: 3 1 600px; min-width: 0; background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+          <div style="overflow-x: auto">
+            <div style="min-width: 860px">
+              <div style="display: grid; grid-template-columns: minmax(0, 2fr) 110px 100px 80px 90px 110px 110px 44px; gap: 10px; padding: 12px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-bottom: 1px solid #EEF0EC">
+                <div>Médicament</div><div>N° de lot</div><div>Expiration</div><div style="text-align: right">Boîtes</div><div style="text-align: right">Unités</div><div style="text-align: right">Achat / bte</div><div style="text-align: right">Total</div><div></div>
+              </div>
+              <sc-for list="{{lines}}" as="l" hint-placeholder-count="5">
+                <div style="{{l.rowStyle}}">
+                  <div style="min-width: 0"><div style="font-weight: 600">{{l.name}}</div><div style="font-size: 12px; color: #5B6661">{{l.pack}}</div></div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{l.lot}}</div>
+                  <div style="{{l.expStyle}}">{{l.exp}}</div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{l.boxes}}</div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; color: #5B6661">{{l.units}}</div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{l.cost}}</div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{l.total}}</div>
+                  <button aria-label="Supprimer la ligne" style="width: 40px; height: 40px; border-radius: 10px; border: 0; background: transparent; color: #8A948F; display: flex; align-items: center; justify-content: center">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+                  </button>
+                </div>
+              </sc-for>
+              <div style="display: grid; grid-template-columns: minmax(0, 2fr) 110px 100px 80px 90px 110px 110px 44px; gap: 10px; align-items: center; padding: 10px 20px; background: #F7FAF8">
+                <input type="text" aria-label="Médicament" placeholder="Chercher un médicament…" style="height: 40px; box-sizing: border-box; padding: 0 10px; border: 1.5px solid {{accent}}; border-radius: 9px; font: inherit; font-size: 14px; min-width: 0">
+                <input type="text" aria-label="N° de lot" placeholder="Lot" style="height: 40px; box-sizing: border-box; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 9px; font: inherit; font-size: 14px; min-width: 0">
+                <input type="text" aria-label="Expiration" placeholder="MM/AAAA" style="height: 40px; box-sizing: border-box; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 9px; font: inherit; font-size: 14px; min-width: 0">
+                <input type="text" aria-label="Boîtes" placeholder="0" style="height: 40px; box-sizing: border-box; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 9px; font: inherit; font-size: 14px; text-align: right; min-width: 0">
+                <div style="text-align: right; color: #8A948F">—</div>
+                <input type="text" aria-label="Prix d'achat par boîte" placeholder="0,00" style="height: 40px; box-sizing: border-box; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 9px; font: inherit; font-size: 14px; text-align: right; min-width: 0">
+                <div></div><div></div>
+              </div>
+            </div>
+          </div>
+          <div style="padding: 12px 20px; font-size: 13px; color: #5B6661">Entrée pour ajouter la ligne · les unités sont calculées depuis la fiche du médicament</div>
+        </section>
+
+        <aside style="flex: 1 1 280px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+          <section style="background: #FFFFFF; border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 10px">
+            <h2 style="margin: 0 0 4px; font-size: 17px">Récapitulatif</h2>
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5B6661">Lignes</span><span style="font-family: 'IBM Plex Mono', monospace">5</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5B6661">Boîtes</span><span style="font-family: 'IBM Plex Mono', monospace">93</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5B6661">Unités en stock</span><span style="font-family: 'IBM Plex Mono', monospace">+ 1 244</span></div>
+            <div style="height: 1px; background: #EEF0EC; margin: 4px 0"></div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-weight: 600">Total facture</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 22px; font-weight: 600">367,55 USD</span></div>
+            <div style="text-align: right; font-size: 13px; color: #5B6661">≈ 1 029 140 FC au taux du jour</div>
+          </section>
+          <section style="background: #FDF1E3; color: #8A4206; border-radius: 16px; padding: 16px 18px; font-size: 14px; display: flex; gap: 10px">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="flex-shrink: 0"><path d="M12 3l10 18H2L12 3z"></path><path d="M12 10v4M12 17h.01"></path></svg>
+            <div><div style="font-weight: 700">1 lot à date courte</div>Métronidazole MT-3305 expire dans 5 mois. Confirmez avant de valider.</div>
+          </section>
+        </aside>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    const row = 'display: grid; grid-template-columns: minmax(0, 2fr) 110px 100px 80px 90px 110px 110px 44px; gap: 10px; align-items: center; padding: 0 20px; min-height: 58px; border-bottom: 1px solid #EEF0EC; font-size: 14px; ';
+    const lines = [
+      ['Artéméther / Luméfantrine 20/120', 'Boîte de 24', 'AL-2304', '08/2028', '20', '480', '4,10', '82,00'],
+      ['Paracétamol 500 mg', 'Boîte de 10', 'PC-9021', '02/2029', '20', '200', '0,18', '3,60'],
+      ['Amoxicilline 500 mg', 'Boîte de 10', 'AX-0577', '01/2028', '30', '300', '0,64', '19,20'],
+      ['Métronidazole 250 mg', 'Boîte de 10', 'MT-3305', '03/2027', '6', '60', '0,30', '1,80', true],
+      ['Artésunate 50 mg', 'Boîte de 12', 'AS-1102', '05/2028', '17', '204', '15,35', '260,95']
+    ].map((l) => ({ name: l[0], pack: l[1], lot: l[2], exp: l[3], boxes: l[4], units: l[5], cost: l[6], total: l[7],
+      expStyle: l[8] ? 'font-size: 14px; font-weight: 700; color: #8A4206' : 'font-size: 14px',
+      rowStyle: row + (l[8] ? 'background: #FFFAF3' : '') }));
+    return { accent, nav: this.navFor('rec'), lines };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Médicaments</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Médicaments</h1>
+        <div style="font-size: 13px; color: #5B6661">412 médicaments · prix synchronisés avec la caisse</div>
+      </div>
+      <a href="Desk-Import.dc.html" style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; color: #16211D; font-weight: 600; font-size: 14px; display: flex; align-items: center; text-decoration: none">Importer (Excel)</a>
+      <a href="Desk-Medicament-Form.dc.html" style="height: 44px; padding: 0 18px; border-radius: 12px; background: {{accent}}; color: #FFFFFF; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; text-decoration: none">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+        Nouveau médicament
+      </a>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <label style="flex: 1 1 280px; height: 44px; box-sizing: border-box; padding: 0 14px; background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 2px rgba(22,33,29,0.06)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6661" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+          <input type="text" aria-label="Rechercher un médicament" placeholder="Nom, molécule ou code-barres" style="flex: 1; min-width: 0; border: 0; outline: 0; font: inherit; font-size: 15px; background: transparent; color: #16211D">
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #5B6661">Catégorie
+          <select style="height: 44px; padding: 0 10px; border: 0; border-radius: 12px; font: inherit; font-size: 14px; color: #16211D; background: #FFFFFF; box-shadow: 0 1px 2px rgba(22,33,29,0.06)"><option>Toutes</option><option>Paludisme</option><option>Antibiotiques</option></select>
+        </label>
+        <div style="display: flex; gap: 4px; flex-wrap: wrap">
+          <sc-for list="{{filters}}" as="f" hint-placeholder-count="4">
+            <button style="{{f.style}}">{{f.label}}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <section style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+        <div style="overflow-x: auto">
+          <div style="min-width: 900px">
+            <div style="display: grid; grid-template-columns: minmax(0, 2.2fr) 130px 90px 110px 100px 140px 120px 70px; gap: 12px; padding: 12px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-bottom: 1px solid #EEF0EC">
+              <div>Médicament</div><div>Catégorie</div><div style="text-align: right">Unités / bte</div><div style="text-align: right">Prix boîte</div><div style="text-align: right">Prix unité</div><div style="text-align: right">Stock</div><div>Statut</div><div></div>
+            </div>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="10">
+              <div style="display: grid; grid-template-columns: minmax(0, 2.2fr) 130px 90px 110px 100px 140px 120px 70px; gap: 12px; align-items: center; padding: 0 20px; min-height: 58px; border-bottom: 1px solid #EEF0EC; font-size: 14px">
+                <div style="min-width: 0">
+                  <div style="display: flex; align-items: center; gap: 8px"><span style="font-weight: 600">{{r.name}}</span>
+                    <sc-if value="{{r.rx}}" hint-placeholder-val="{{false}}"><span style="font-size: 11px; font-weight: 700; color: #2B3F86">Rx</span></sc-if>
+                  </div>
+                  <div style="font-size: 12px; color: #5B6661">{{r.form}}</div>
+                </div>
+                <div style="color: #5B6661">{{r.cat}}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.units}}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.pack}}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.unit}}</div>
+                <div style="text-align: right"><div style="font-family: 'IBM Plex Mono', monospace">{{r.stock}}</div><div style="font-size: 12px; color: #5B6661">seuil {{r.min}}</div></div>
+                <div><span style="{{r.badgeStyle}}">{{r.badge}}</span></div>
+                <div style="text-align: right"><a href="Desk-Medicament-Form.dc.html" style="font-size: 13px; font-weight: 600; text-decoration: none">Modifier</a></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 20px; font-size: 13px; color: #5B6661">
+          <span>1–10 sur 412</span>
+          <div style="display: flex; gap: 6px">
+            <button style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #E2E5E0; background: #FFFFFF; font: inherit; font-size: 13px; color: #5B6661">Précédent</button>
+            <button style="height: 40px; padding: 0 14px; border-radius: 10px; border: 1px solid #E2E5E0; background: #FFFFFF; font: inherit; font-size: 13px; color: #16211D; font-weight: 600">Suivant</button>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    const chip = 'height: 44px; padding: 0 14px; border-radius: 12px; border: 0; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; ';
+    const filters = ['Tous', 'Ruptures', 'Stock bas', 'Ordonnance'].map((label, i) => ({ label, style: chip + (i === 0 ? 'background: #16211D; color: #FFFFFF' : 'background: transparent; color: #5B6661') }));
+    const badge = 'display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; ';
+    const S = { ok: [badge + 'background: #E3F0EA; color: #0A4A3A', 'OK'], low: [badge + 'background: #FDF1E3; color: #8A4206', 'Stock bas'], out: [badge + 'background: #FBE9E7; color: #A8261B', 'Rupture'] };
+    const rows = [
+      ['Paracétamol 500 mg', 'Comprimé', 'Douleur', '10', '1 000', '100', '1 840 u · 184 bt', '500', 'ok'],
+      ['Artéméther / Luméfantrine 20/120', 'Comprimé', 'Paludisme', '24', '7 500', '350', '144 u · 6 bt', '720', 'low'],
+      ['Amoxicilline 500 mg', 'Gélule', 'Antibiotiques', '10', '2 500', '250', '420 u · 42 bt', '300', 'ok', true],
+      ['Ceftriaxone 1 g', 'Injectable', 'Antibiotiques', '1', '4 500', '—', '0', '10', 'out', true],
+      ['Ibuprofène 400 mg', 'Comprimé', 'Douleur', '10', '1 500', '150', '670 u · 67 bt', '300', 'ok'],
+      ['Métronidazole 250 mg', 'Comprimé', 'Antibiotiques', '10', '1 200', '120', '40 u · 4 bt', '200', 'low', true],
+      ['Paracétamol sirop 120 mg/5 ml', 'Flacon 100 ml', 'Enfants', '1', '3 500', '—', '22 fl', '10', 'ok'],
+      ['Quinine 300 mg', 'Comprimé', 'Paludisme', '20', '5 000', '250', '0', '300', 'out'],
+      ['SRO + Zinc', 'Kit', 'Enfants', '1', '3 000', '—', '30 kits', '20', 'ok'],
+      ['Vitamine C 500 mg', 'Tube de 20', 'Vitamines', '20', '4 000', '200', '300 u · 15 bt', '100', 'ok']
+    ].map((r) => ({ name: r[0], form: r[1], cat: r[2], units: r[3], pack: r[4] + ' FC', unit: r[5] === '—' ? '—' : r[5] + ' FC', stock: r[6], min: r[7], badgeStyle: S[r[8]][0], badge: S[r[8]][1], rx: !!r[9] }));
+    return { accent, nav: this.navFor('med'), filters, rows };
+  }
+}
+</script>
+</body>
+</html>

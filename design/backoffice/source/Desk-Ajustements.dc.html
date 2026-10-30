@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ajustements et péremptions</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Ajustements et péremptions</h1>
+        <div style="font-size: 13px; color: #5B6661">Toute correction du stock passe par ici, avec un motif et votre nom</div>
+      </div>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <div style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <section style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 20px 12px">
+            <h2 style="margin: 0; font-size: 17px; flex: 1 1 auto">Lots expirés et à date courte</h2>
+            <span style="font-size: 13px; color: #5B6661">Alerte à 90 jours</span>
+          </div>
+          <div style="overflow-x: auto">
+            <div style="min-width: 680px">
+              <div style="display: grid; grid-template-columns: minmax(0, 2fr) 110px 120px 90px 130px; gap: 12px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-top: 1px solid #EEF0EC; border-bottom: 1px solid #EEF0EC">
+                <div>Médicament</div><div>Lot</div><div>Expiration</div><div style="text-align: right">Qté</div><div></div>
+              </div>
+              <sc-for list="{{lots}}" as="l" hint-placeholder-count="5">
+                <div style="display: grid; grid-template-columns: minmax(0, 2fr) 110px 120px 90px 130px; gap: 12px; align-items: center; padding: 0 20px; min-height: 58px; border-bottom: 1px solid #EEF0EC; font-size: 14px">
+                  <div style="min-width: 0"><div style="font-weight: 600">{{l.name}}</div><div style="font-size: 12px; color: #5B6661">{{l.value}}</div></div>
+                  <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{l.lot}}</div>
+                  <div><span style="{{l.badgeStyle}}">{{l.exp}}</span></div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{l.qty}}</div>
+                  <div style="text-align: right"><button style="{{l.btnStyle}}">{{l.action}}</button></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+
+        <section style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+          <h2 style="margin: 0; padding: 18px 20px 12px; font-size: 17px">Journal des ajustements</h2>
+          <div style="overflow-x: auto">
+            <div style="min-width: 680px">
+              <sc-for list="{{journal}}" as="j" hint-placeholder-count="4">
+                <div style="display: grid; grid-template-columns: 110px minmax(0, 2fr) 130px 90px 120px; gap: 12px; align-items: center; padding: 0 20px; min-height: 54px; border-top: 1px solid #EEF0EC; font-size: 14px">
+                  <div style="color: #5B6661; font-size: 13px">{{j.date}}</div>
+                  <div style="min-width: 0"><div style="font-weight: 600">{{j.name}}</div><div style="font-size: 12px; color: #5B6661">{{j.reason}}</div></div>
+                  <div style="font-size: 13px">{{j.type}}</div>
+                  <div style="{{j.qtyStyle}}">{{j.qty}}</div>
+                  <div style="font-size: 13px; color: #5B6661; text-align: right">{{j.who}}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <aside style="flex: 1 1 320px; min-width: 0; background: #FFFFFF; border-radius: 16px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 14px">
+        <h2 style="margin: 0; font-size: 17px">Nouvel ajustement</h2>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Médicament
+          <input type="text" value="Ibuprofène 400 mg" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Lot
+          <select style="height: 44px; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D; background: #FFFFFF"><option>IB-2210 · 412 u · exp. 09/2027</option></select></label>
+        <fieldset style="border: 0; margin: 0; padding: 0">
+          <legend style="font-size: 13px; color: #5B6661; margin-bottom: 6px">Type</legend>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+            <sc-for list="{{types}}" as="t" hint-placeholder-count="4">
+              <button style="{{t.style}}">{{t.label}}</button>
+            </sc-for>
+          </div>
+        </fieldset>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Quantité (unités, − pour retirer)
+          <input type="text" value="−10" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #16211D"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Motif (obligatoire)
+          <textarea rows="3" style="box-sizing: border-box; padding: 10px 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D; resize: vertical">Une plaquette écrasée lors du rangement</textarea></label>
+        <div style="padding: 10px 12px; border-radius: 10px; background: #F4F5F2; font-size: 13px; color: #5B6661">Stock après ajustement : <span style="font-family: 'IBM Plex Mono', monospace; color: #16211D; font-weight: 600">402 u</span></div>
+        <button style="height: 48px; border-radius: 12px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700">Enregistrer l'ajustement</button>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    const badge = 'display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; ';
+    const btn = 'height: 40px; padding: 0 14px; border-radius: 10px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; ';
+    const lots = [
+      ['Gentamicine 80 mg inj.', 'GT-0098', 'Expiré 15/10', '12 amp.', 'dead', 'Valeur d\'achat 14 400 FC'],
+      ['Vitamine B complexe', 'VB-0310', 'Expiré 02/10', '8 btes', 'dead', 'Valeur d\'achat 9 600 FC'],
+      ['Paracétamol 500 mg', 'PC-8810', '30/11/2026', '34 plaq.', 'soon', 'Vendu en premier à la caisse'],
+      ['Vitamine C 500 mg', 'VC-0211', '31/12/2026', '6 tubes', 'soon', 'Vendu en premier à la caisse'],
+      ['Métronidazole 250 mg', 'MT-2988', '31/01/2027', '4 plaq.', 'soon', 'Vendu en premier à la caisse']
+    ].map((l) => ({ name: l[0], lot: l[1], exp: l[2], qty: l[3], value: l[5],
+      badgeStyle: badge + (l[4] === 'dead' ? 'background: #FBE9E7; color: #A8261B' : 'background: #FDF1E3; color: #8A4206'),
+      action: l[4] === 'dead' ? 'Retirer du stock' : 'Promouvoir',
+      btnStyle: btn + (l[4] === 'dead' ? 'border: 0; background: #A8261B; color: #FFFFFF' : 'border: 1px solid #CCD2CC; background: #FFFFFF; color: #16211D') }));
+    const plus = 'text-align: right; font-family: \'IBM Plex Mono\', monospace; font-weight: 700; color: #1F5FA8';
+    const minus = 'text-align: right; font-family: \'IBM Plex Mono\', monospace; font-weight: 700; color: #A8261B';
+    const journal = [
+      { date: '22/10 16:40', name: 'Sirop toux enfant · TS-0042', reason: 'Flacon cassé à la réception', type: 'Casse', qty: '−1', qtyStyle: minus, who: 'J. Mbuyi' },
+      { date: '20/10 09:15', name: 'Amoxicilline 500 mg · AX-0412', reason: 'Carton non saisi lors de la réception', type: 'Correction', qty: '+20', qtyStyle: plus, who: 'J. Mbuyi' },
+      { date: '18/10 18:02', name: 'Insuline rapide · IN-0007', reason: 'Lot expiré retiré', type: 'Péremption', qty: '−3', qtyStyle: minus, who: 'J. Mbuyi' },
+      { date: '11/10 12:30', name: 'Paracétamol 500 mg · PC-8810', reason: 'Écart de caisse constaté', type: 'Perte', qty: '−2', qtyStyle: minus, who: 'Grâce M.' }
+    ];
+    const t = 'height: 44px; border-radius: 10px; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; ';
+    const types = ['Casse', 'Perte / vol', 'Péremption', 'Correction'].map((label, i) => ({ label, style: t + (i === 0 ? 'border: 2px solid ' + accent + '; background: #E3F0EA; color: #0A4A3A' : 'border: 1px solid #CCD2CC; background: #FFFFFF; color: #16211D') }));
+    return { accent, nav: this.navFor('adj'), lots, journal, types };
+  }
+}
+</script>
+</body>
+</html>

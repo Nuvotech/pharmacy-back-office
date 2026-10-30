@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Rapport des ventes</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Rapport des ventes</h1>
+        <div style="font-size: 13px; color: #5B6661">Inclut les ventes synchronisées jusqu'à 10:41</div>
+      </div>
+      <select aria-label="Période" style="height: 44px; padding: 0 10px; border: 1px solid #CCD2CC; border-radius: 12px; font: inherit; font-size: 14px; color: #16211D; background: #FFFFFF"><option>1–23 octobre 2026</option><option>Septembre 2026</option></select>
+      <button style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; font: inherit; font-weight: 600; font-size: 14px; color: #16211D">Exporter Excel</button>
+      <button style="height: 44px; padding: 0 16px; border-radius: 12px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-weight: 700; font-size: 14px">Exporter PDF</button>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px">
+        <sc-for list="{{kpis}}" as="k" hint-placeholder-count="4">
+          <div style="background: #FFFFFF; border-radius: 16px; padding: 16px 18px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 4px">
+            <span style="font-size: 13px; font-weight: 600; color: #5B6661">{{k.label}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 600">{{k.value}}</span>
+            <span style="font-size: 12px; color: #5B6661">{{k.sub}}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <section style="background: #FFFFFF; border-radius: 16px; padding: 20px 22px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px">
+          <h2 style="margin: 0; font-size: 17px; flex: 1 1 auto">Ventes par jour (FC)</h2>
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6661"><span style="width: 12px; height: 12px; border-radius: 3px; background: {{accent}}"></span>Espèces</span>
+          <span style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: #5B6661"><span style="width: 12px; height: 12px; border-radius: 3px; background: #E8A04A"></span>Mobile money</span>
+        </div>
+        <div style="overflow-x: auto">
+          <div role="img" aria-label="Ventes quotidiennes du 1er au 23 octobre, entre 0,8 et 1,6 million de FC par jour" style="min-width: 640px; display: flex; gap: 10px">
+            <div style="display: flex; flex-direction: column; justify-content: space-between; height: 220px; font-size: 11px; color: #5B6661; font-family: 'IBM Plex Mono', monospace; text-align: right; width: 44px">
+              <span>1,6 M</span><span>1,2 M</span><span>0,8 M</span><span>0,4 M</span><span>0</span>
+            </div>
+            <div style="flex: 1; display: flex; flex-direction: column; gap: 6px">
+              <div style="height: 220px; display: flex; align-items: flex-end; gap: 6px; border-bottom: 1px solid #CCD2CC; background: repeating-linear-gradient(to top, transparent 0, transparent 54px, #EEF0EC 54px, #EEF0EC 55px)">
+                <sc-for list="{{days}}" as="d" hint-placeholder-count="23">
+                  <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end; height: 100%">
+                    <div style="{{d.mobileStyle}}"></div>
+                    <div style="{{d.cashStyle}}"></div>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display: flex; gap: 6px">
+                <sc-for list="{{days}}" as="d" hint-placeholder-count="23">
+                  <div style="flex: 1; text-align: center; font-size: 11px; color: #5B6661; font-family: 'IBM Plex Mono', monospace">{{d.label}}</div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+        <h2 style="margin: 0; padding: 18px 20px 12px; font-size: 17px">Meilleures ventes de la période</h2>
+        <div style="overflow-x: auto">
+          <div style="min-width: 680px">
+            <div style="display: grid; grid-template-columns: 40px minmax(0, 2fr) 120px 150px minmax(0, 1.4fr); gap: 12px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-top: 1px solid #EEF0EC; border-bottom: 1px solid #EEF0EC">
+              <div>#</div><div>Médicament</div><div style="text-align: right">Quantité</div><div style="text-align: right">Chiffre d'affaires</div><div>Part du CA</div>
+            </div>
+            <sc-for list="{{top}}" as="t" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 40px minmax(0, 2fr) 120px 150px minmax(0, 1.4fr); gap: 12px; align-items: center; padding: 0 20px; min-height: 52px; border-bottom: 1px solid #EEF0EC; font-size: 14px">
+                <div style="color: #5B6661; font-family: 'IBM Plex Mono', monospace">{{t.rank}}</div>
+                <div style="font-weight: 600">{{t.name}}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{t.qty}}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{t.rev}}</div>
+                <div style="display: flex; align-items: center; gap: 10px"><div style="flex: 1; height: 8px; border-radius: 4px; background: #EEF0EC; overflow: hidden"><div style="{{t.barStyle}}"></div></div><span style="font-family: 'IBM Plex Mono', monospace; font-size: 13px; width: 52px; text-align: right">{{t.pct}}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  fmt(n) { return Math.round(n).toLocaleString('fr-FR').replace(/[  ]/g, ' '); }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    // daily sales, thousands of FC: [cash, mobile money]
+    const raw = [[720, 380], [810, 420], [690, 350], [560, 260], [880, 470], [940, 520], [760, 410], [700, 330], [820, 450], [610, 300], [520, 240], [870, 500], [930, 560], [780, 430], [740, 390], [850, 470], [640, 320], [540, 230], [900, 540], [960, 590], [810, 440], [770, 400], [820, 465]];
+    const max = 1600;
+    const days = raw.map((d, i) => ({
+      label: String(i + 1),
+      cashStyle: 'height: ' + (d[0] / max * 220).toFixed(1) + 'px; background: ' + accent + '; border-radius: 0 0 2px 2px',
+      mobileStyle: 'height: ' + (d[1] / max * 220).toFixed(1) + 'px; background: #E8A04A; border-radius: 3px 3px 0 0; margin-bottom: 1px'
+    }));
+    const total = raw.reduce((s, d) => s + d[0] + d[1], 0) * 1000;
+    const mobile = raw.reduce((s, d) => s + d[1], 0) * 1000;
+    const tickets = 1264;
+    const kpis = [
+      { label: 'Chiffre d\'affaires', value: this.fmt(total) + ' FC', sub: '≈ ' + this.fmt(total / 2800) + ' USD' },
+      { label: 'Tickets', value: this.fmt(tickets), sub: this.fmt(tickets / raw.length) + ' par jour en moyenne' },
+      { label: 'Panier moyen', value: this.fmt(total / tickets) + ' FC', sub: 'par ticket' },
+      { label: 'Mobile money', value: Math.round(mobile / total * 100) + ' %', sub: 'du chiffre d\'affaires' }
+    ];
+    const prods = [['Paracétamol 500 mg', 2140, 'plaq.', 1000], ['Artéméther / Luméfantrine 20/120', 318, 'btes', 7500], ['Amoxicilline 500 mg', 612, 'plaq.', 2500], ['SRO + Zinc', 290, 'kits', 3000], ['Ibuprofène 400 mg', 488, 'plaq.', 1500], ['Paracétamol sirop', 176, 'fl.', 3500]];
+    const revs = prods.map((p) => p[1] * p[3]);
+    const top = prods.map((p, i) => ({ rank: String(i + 1), name: p[0], qty: this.fmt(p[1]) + ' ' + p[2], rev: this.fmt(revs[i]) + ' FC',
+      pct: (revs[i] / total * 100).toFixed(1).replace('.', ',') + ' %',
+      barStyle: 'height: 100%; width: ' + (revs[i] / total * 100 / 12 * 100).toFixed(1) + '%; max-width: 100%; background: ' + accent }))
+      .sort((a, b) => 0);
+    top.sort((a, b) => parseFloat(b.pct.replace(',', '.')) - parseFloat(a.pct.replace(',', '.')));
+    top.forEach((t, i) => { t.rank = String(i + 1); });
+    return { accent, nav: this.navFor('ven'), kpis, days, top };
+  }
+}
+</script>
+</body>
+</html>

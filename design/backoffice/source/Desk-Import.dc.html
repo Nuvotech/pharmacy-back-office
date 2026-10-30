@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Import du stock initial</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Import du stock initial</h1>
+        <div style="font-size: 13px; color: #5B6661">Rien n'est enregistré tant que vous n'avez pas confirmé</div>
+      </div>
+      <a href="#" style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; color: #16211D; font-weight: 600; font-size: 14px; display: flex; align-items: center; text-decoration: none">Télécharger le modèle Excel</a>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+      <ol style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px">
+        <sc-for list="{{steps}}" as="s" hint-placeholder-count="4">
+          <li style="{{s.style}}"><span style="{{s.numStyle}}">{{s.n}}</span>{{s.label}}</li>
+        </sc-for>
+      </ol>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 14px">
+        <div style="flex: 2 1 320px; min-width: 0; background: #FFFFFF; border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; align-items: center; gap: 14px">
+          <div style="width: 44px; height: 44px; border-radius: 10px; background: #E3F0EA; color: #0A4A3A; display: flex; align-items: center; justify-content: center; flex-shrink: 0">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"></path><path d="M14 3v5h5M9 13l2.5 3L9 19M15 13l-2.5 3L15 19"></path></svg>
+          </div>
+          <div style="flex: 1; min-width: 0">
+            <div style="font-weight: 600">stock-initial-pharmacie.xlsx</div>
+            <div style="font-size: 13px; color: #5B6661">412 lignes · chargé à 09:12</div>
+          </div>
+          <button style="height: 44px; padding: 0 14px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; font: inherit; font-size: 14px; font-weight: 600; color: #16211D">Changer de fichier</button>
+        </div>
+        <div style="flex: 1 1 160px; background: #E3F0EA; color: #0A4A3A; border-radius: 16px; padding: 18px 20px">
+          <div style="font-size: 13px; font-weight: 600">Lignes valides</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 600">398</div>
+        </div>
+        <div style="flex: 1 1 160px; background: #FBE9E7; color: #A8261B; border-radius: 16px; padding: 18px 20px">
+          <div style="font-size: 13px; font-weight: 600">Lignes en erreur</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 28px; font-weight: 600">14</div>
+        </div>
+      </div>
+
+      <section style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 20px 12px">
+          <h2 style="margin: 0; font-size: 17px; flex: 1 1 auto">Erreurs à corriger</h2>
+          <a href="#" style="font-size: 14px; font-weight: 600; text-decoration: none">Télécharger la liste (Excel)</a>
+        </div>
+        <div style="overflow-x: auto">
+          <div style="min-width: 760px">
+            <div style="display: grid; grid-template-columns: 70px minmax(0, 1.4fr) 140px minmax(0, 2fr); gap: 12px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-top: 1px solid #EEF0EC; border-bottom: 1px solid #EEF0EC">
+              <div>Ligne</div><div>Médicament</div><div>Colonne</div><div>Problème</div>
+            </div>
+            <sc-for list="{{errors}}" as="e" hint-placeholder-count="6">
+              <div style="display: grid; grid-template-columns: 70px minmax(0, 1.4fr) 140px minmax(0, 2fr); gap: 12px; align-items: center; padding: 0 20px; min-height: 52px; border-bottom: 1px solid #EEF0EC; font-size: 14px">
+                <div style="font-family: 'IBM Plex Mono', monospace; color: #5B6661">{{e.line}}</div>
+                <div style="font-weight: 600">{{e.name}}</div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{e.col}}</div>
+                <div style="color: #A8261B">{{e.msg}}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="padding: 14px 20px; font-size: 13px; color: #5B6661">+ 8 autres erreurs dans le fichier téléchargeable</div>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+        <div style="flex: 1 1 320px; font-size: 14px; color: #5B6661">Corrigez les 14 lignes dans Excel puis rechargez le fichier, ou importez les 398 lignes valides maintenant et ajoutez le reste ensuite.</div>
+        <button style="height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; font: inherit; font-size: 15px; font-weight: 600; color: #16211D">Recharger le fichier corrigé</button>
+        <button style="height: 48px; padding: 0 22px; border-radius: 12px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700">Importer les 398 lignes valides</button>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    const st = 'display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 16px 0 8px; border-radius: 999px; font-size: 14px; font-weight: 600; ';
+    const num = 'width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; ';
+    const steps = [['1', 'Modèle', 'done'], ['2', 'Fichier chargé', 'done'], ['3', 'Vérification', 'now'], ['4', 'Import', 'next']].map((s) => ({
+      n: s[2] === 'done' ? '✓' : s[0], label: s[1],
+      style: st + (s[2] === 'now' ? 'background: #16211D; color: #FFFFFF' : s[2] === 'done' ? 'background: #E3F0EA; color: #0A4A3A' : 'background: #FFFFFF; color: #5B6661'),
+      numStyle: num + (s[2] === 'now' ? 'background: #FFFFFF; color: #16211D' : s[2] === 'done' ? 'background: ' + accent + '; color: #FFFFFF' : 'background: #F4F5F2; color: #5B6661')
+    }));
+    const errors = [
+      ['14', 'Ceftriaxone 1 g', 'date_expiration', 'Date vide — chaque lot doit avoir une date d\'expiration'],
+      ['37', 'Paracétamol sirop', 'date_expiration', 'Date passée (12/09/2026) — lot déjà expiré'],
+      ['58', 'Amoxicilline 250 mg', 'prix_boite', 'Texte « deux mille » au lieu d\'un nombre'],
+      ['91', 'Quinine 300 mg', 'unites_par_boite', 'Vaut 0 — au moins 1 unité par boîte'],
+      ['120', 'Cotrimoxazole 480 mg', 'quantite', 'Nombre négatif (-20)'],
+      ['203', 'Ibuprofène 400 mg', 'nom', 'Doublon de la ligne 44 avec le même numéro de lot']
+    ].map((e) => ({ line: e[0], name: e[1], col: e[2], msg: e[3] }));
+    return { accent, nav: this.navFor('imp'), steps, errors };
+  }
+}
+</script>
+</body>
+</html>

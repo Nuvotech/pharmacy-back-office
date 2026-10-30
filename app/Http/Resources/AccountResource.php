@@ -1,0 +1,31 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Http\Resources;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+
+/**
+ * An account the tablet can sign in offline: the PIN hash is checked on the device.
+ *
+ * @mixin User
+ */
+class AccountResource extends JsonResource
+{
+    /**
+     * @return array{id: int, name: string, username: string|null, role: string, pin_hash: string|null}
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'username' => $this->username,
+            'role' => $this->role->value,
+            'pin_hash' => $this->pin_hash,
+        ];
+    }
+}

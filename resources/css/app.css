@@ -1,0 +1,124 @@
+@import 'tailwindcss';
+
+@import 'tw-animate-css';
+
+/* Back-office design tokens (copied from design/backoffice/tokens.css; same values). */
+@import './tokens.css';
+
+@source '../views';
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Login screen only: the navy / cyan palette of the tablet login
+ * (design/tablet/tablet/theme.ts), so both logins look alike.
+ */
+@theme {
+    --color-login-navy: #234b91;
+    --color-login-navy-hover: #1a3a73;
+    --color-login-heading: #1d3f7a;
+    --color-login-subtitle: #1f7fa3;
+    --color-login-accent: #3ec1d6;
+    --color-login-accent-soft: #a6e2ec;
+    --color-login-circle: #e8eef7;
+    --color-login-ink: #172033;
+    --color-login-muted: #5a6478;
+    --color-login-border: #cbd2dd;
+}
+
+/*
+ * shadcn/ui semantic colours, used by the login and settings screens. They point at the
+ * pharmacy palette from tokens.css. `background`, `primary`, `border` and `sidebar` are not
+ * redefined here: tokens.css owns those names. The app is light only.
+ */
+@theme {
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --color-foreground: var(--foreground);
+
+    --color-card: var(--card);
+    --color-card-foreground: var(--card-foreground);
+
+    --color-popover: var(--popover);
+    --color-popover-foreground: var(--popover-foreground);
+
+    --color-primary-foreground: var(--primary-foreground);
+
+    --color-secondary: var(--secondary);
+    --color-secondary-foreground: var(--secondary-foreground);
+
+    --color-muted: var(--muted);
+    --color-muted-foreground: var(--muted-foreground);
+
+    --color-accent: var(--accent);
+    --color-accent-foreground: var(--accent-foreground);
+
+    --color-destructive: var(--destructive);
+    --color-destructive-foreground: var(--destructive-foreground);
+
+    --color-input: var(--input);
+    --color-ring: var(--ring);
+
+    --color-chart-1: var(--chart-1);
+    --color-chart-2: var(--chart-2);
+    --color-chart-3: var(--chart-3);
+    --color-chart-4: var(--chart-4);
+    --color-chart-5: var(--chart-5);
+
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-ring: var(--sidebar-ring);
+}
+
+:root {
+    --foreground: #16211d;
+    --card: #ffffff;
+    --card-foreground: #16211d;
+    --popover: #ffffff;
+    --popover-foreground: #16211d;
+    --primary-foreground: #ffffff;
+    --secondary: #f4f5f2;
+    --secondary-foreground: #16211d;
+    --muted: #f4f5f2;
+    --muted-foreground: #5b6661;
+    --accent: #f4f5f2;
+    --accent-foreground: #16211d;
+    --destructive: #a8261b;
+    --destructive-foreground: #a8261b;
+    --input: #ccd2cc;
+    --ring: #0e6b53;
+    --chart-1: #0e6b53;
+    --chart-2: #e8a04a;
+    --chart-3: #1f5fa8;
+    --chart-4: #d97a1e;
+    --chart-5: #a8261b;
+    --radius: 0.625rem;
+    --sidebar-foreground: #c9d1cc;
+    --sidebar-primary: #0e6b53;
+    --sidebar-primary-foreground: #ffffff;
+    --sidebar-accent: #2a3832;
+    --sidebar-accent-foreground: #ffffff;
+    --sidebar-border: #2a3832;
+    --sidebar-ring: #0e6b53;
+}
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+    }
+
+    a:not([class]) {
+        @apply text-primary hover:text-primary-hover;
+    }
+}

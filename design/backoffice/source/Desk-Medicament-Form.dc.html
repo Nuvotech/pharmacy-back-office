@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Fiche médicament</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <a href="Desk-Medicaments.dc.html" style="font-size: 13px; font-weight: 600; text-decoration: none">← Médicaments</a>
+        <h1 style="margin: 2px 0 0; font-size: 22px; font-weight: 700">Amoxicilline 500 mg</h1>
+      </div>
+      <a href="Desk-Medicaments.dc.html" style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; color: #16211D; font-weight: 600; font-size: 14px; display: flex; align-items: center; text-decoration: none">Annuler</a>
+      <a href="Desk-Medicaments.dc.html" style="height: 44px; padding: 0 22px; border-radius: 12px; background: {{accent}}; color: #FFFFFF; font-weight: 700; font-size: 14px; display: flex; align-items: center; text-decoration: none">Enregistrer</a>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <div style="flex: 2 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+
+        <section style="background: #FFFFFF; border-radius: 16px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 16px">
+          <h2 style="margin: 0; font-size: 17px">Identification</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px 16px">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Nom commercial
+              <input type="text" value="Amoxicilline 500 mg" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Molécule (DCI)
+              <input type="text" value="Amoxicilline" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Forme
+              <select style="height: 44px; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D; background: #FFFFFF"><option>Gélule</option><option>Comprimé</option><option>Sirop</option><option>Injectable</option></select></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Dosage
+              <input type="text" value="500 mg" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Catégorie
+              <select style="height: 44px; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D; background: #FFFFFF"><option>Antibiotiques</option></select></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Code-barres (facultatif)
+              <input type="text" value="6 001234 567890" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D; font-family: 'IBM Plex Mono', monospace"></label>
+          </div>
+          <label style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px">
+            <input type="checkbox" checked style="width: 22px; height: 22px; accent-color: #2B3F86">
+            <span><span style="font-weight: 600">Sur ordonnance</span><span style="display: block; font-size: 13px; color: #5B6661">La caisse demandera le prescripteur à la vente</span></span>
+          </label>
+        </section>
+
+        <section style="background: #FFFFFF; border-radius: 16px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 16px">
+          <h2 style="margin: 0; font-size: 17px">Conditionnement et prix de vente</h2>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px 16px">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Unités par boîte
+              <input type="text" value="10" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #16211D"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Prix de la boîte (FC)
+              <input type="text" value="2 500" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #16211D"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Prix à l'unité (FC)
+              <input type="text" value="250" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #16211D"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Seuil minimum (unités)
+              <input type="text" value="300" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #16211D"></label>
+          </div>
+          <label style="display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 15px">
+            <input type="checkbox" checked style="width: 22px; height: 22px; accent-color: #0E6B53">
+            <span style="font-weight: 600">Vendre aussi à l'unité (plaquette ouverte)</span>
+          </label>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px 24px; padding: 12px 14px; border-radius: 10px; background: #F4F5F2; font-size: 13px; color: #5B6661">
+            <span>≈ <span style="font-family: 'IBM Plex Mono', monospace; color: #16211D">0,89 USD</span> la boîte au taux du jour</span>
+            <span>Marge sur dernier lot : <span style="font-family: 'IBM Plex Mono', monospace; color: #16211D">38 %</span></span>
+          </div>
+        </section>
+      </div>
+
+      <aside style="flex: 1 1 300px; min-width: 0; background: #FFFFFF; border-radius: 16px; padding: 22px 24px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; justify-content: space-between; align-items: baseline">
+          <h2 style="margin: 0; font-size: 17px">Lots en stock</h2>
+          <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">420 u</span>
+        </div>
+        <div style="font-size: 13px; color: #5B6661">Vendus dans cet ordre (premier expiré, premier sorti)</div>
+        <sc-for list="{{lots}}" as="l" hint-placeholder-count="2">
+          <div style="border: 1px solid #E2E5E0; border-radius: 12px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px">
+            <div style="display: flex; justify-content: space-between"><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{l.lot}}</span><span style="font-family: 'IBM Plex Mono', monospace">{{l.qty}}</span></div>
+            <div style="display: flex; justify-content: space-between; font-size: 13px; color: #5B6661"><span>{{l.exp}}</span><span>{{l.cost}}</span></div>
+          </div>
+        </sc-for>
+        <a href="#" style="font-size: 14px; font-weight: 600; text-decoration: none">Historique des mouvements</a>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    const lots = [
+      { lot: 'AX-0412', qty: '120 u', exp: 'Expire 06/2027', cost: 'Achat 1 650 FC/bt' },
+      { lot: 'AX-0577', qty: '300 u', exp: 'Expire 01/2028', cost: 'Achat 1 800 FC/bt' }
+    ];
+    return { accent, nav: this.navFor('med'), lots };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Inventaire</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Inventaire · octobre 2026</h1>
+        <div style="font-size: 13px; color: #5B6661">Ouvert le 23/10 à 07:30 · ventes bloquées sur les produits en cours de comptage</div>
+      </div>
+      <button style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; font: inherit; font-weight: 600; font-size: 14px; color: #16211D">Imprimer la feuille de comptage</button>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: flex; flex-wrap: wrap; gap: 14px">
+        <div style="flex: 2 1 320px; background: #FFFFFF; border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 10px">
+          <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="font-weight: 600">Avancement</span><span style="font-family: 'IBM Plex Mono', monospace">214 / 412 lots</span></div>
+          <div style="height: 10px; border-radius: 5px; background: #E8EBE7; overflow: hidden"><div style="width: 52%; height: 100%; background: {{accent}}"></div></div>
+          <div style="font-size: 13px; color: #5B6661">Rayons A à D comptés · E et F restants</div>
+        </div>
+        <div style="flex: 1 1 160px; background: #FFFFFF; border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06)">
+          <div style="font-size: 13px; font-weight: 600; color: #5B6661">Lots avec écart</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600">9</div>
+        </div>
+        <div style="flex: 1 1 160px; background: #FBE9E7; color: #A8261B; border-radius: 16px; padding: 18px 20px">
+          <div style="font-size: 13px; font-weight: 600">Valeur des écarts</div>
+          <div style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600">− 58 200 FC</div>
+        </div>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+        <label style="flex: 1 1 260px; height: 44px; box-sizing: border-box; padding: 0 14px; background: #FFFFFF; border-radius: 12px; display: flex; align-items: center; gap: 10px; box-shadow: 0 1px 2px rgba(22,33,29,0.06)">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5B6661" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-4-4"></path></svg>
+          <input type="text" aria-label="Rechercher" placeholder="Médicament, lot ou rayon" style="flex: 1; min-width: 0; border: 0; outline: 0; font: inherit; font-size: 15px; background: transparent; color: #16211D">
+        </label>
+        <sc-for list="{{filters}}" as="f" hint-placeholder-count="3">
+          <button style="{{f.style}}">{{f.label}}</button>
+        </sc-for>
+      </div>
+
+      <section style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+        <div style="overflow-x: auto">
+          <div style="min-width: 860px">
+            <div style="display: grid; grid-template-columns: minmax(0, 2fr) 110px 70px 110px 130px 100px 130px; gap: 12px; padding: 12px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-bottom: 1px solid #EEF0EC">
+              <div>Médicament</div><div>Lot</div><div>Rayon</div><div style="text-align: right">Système</div><div style="text-align: right">Compté</div><div style="text-align: right">Écart</div><div style="text-align: right">Valeur</div>
+            </div>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+              <div style="display: grid; grid-template-columns: minmax(0, 2fr) 110px 70px 110px 130px 100px 130px; gap: 12px; align-items: center; padding: 0 20px; min-height: 56px; border-bottom: 1px solid #EEF0EC; font-size: 14px">
+                <div style="min-width: 0"><div style="font-weight: 600">{{r.name}}</div><div style="font-size: 12px; color: #5B6661">{{r.exp}}</div></div>
+                <div style="font-family: 'IBM Plex Mono', monospace; font-size: 13px">{{r.lot}}</div>
+                <div style="color: #5B6661">{{r.shelf}}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.sys}}</div>
+                <div style="display: flex; justify-content: flex-end"><input type="text" aria-label="Quantité comptée" value="{{r.count}}" placeholder="—" style="width: 96px; height: 40px; box-sizing: border-box; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 14px; text-align: right"></div>
+                <div style="{{r.diffStyle}}">{{r.diff}}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; color: #5B6661">{{r.value}}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px">
+        <div style="flex: 1 1 320px; font-size: 14px; color: #5B6661">À la clôture, chaque écart devient un ajustement signé à votre nom. Les lots non comptés gardent leur quantité.</div>
+        <button style="height: 48px; padding: 0 18px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; font: inherit; font-size: 15px; font-weight: 600; color: #16211D">Voir la liste des écarts</button>
+        <button style="height: 48px; padding: 0 22px; border-radius: 12px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700">Clôturer l'inventaire</button>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    const chip = 'height: 44px; padding: 0 14px; border-radius: 12px; border: 0; font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; ';
+    const filters = ['Tous', 'Écarts seulement · 9', 'Non comptés · 198'].map((label, i) => ({ label, style: chip + (i === 0 ? 'background: #16211D; color: #FFFFFF' : 'background: transparent; color: #5B6661') }));
+    const num = 'text-align: right; font-family: \'IBM Plex Mono\', monospace; font-weight: 700; ';
+    const rows = [
+      ['Paracétamol 500 mg', 'exp. 11/2026', 'PC-8810', 'A2', 340, 330, 100],
+      ['Paracétamol 500 mg', 'exp. 07/2027', 'PC-8902', 'A2', 800, 800, 100],
+      ['Amoxicilline 500 mg', 'exp. 06/2027', 'AX-0412', 'B1', 120, 110, 250],
+      ['Ibuprofène 400 mg', 'exp. 09/2027', 'IB-2210', 'A3', 400, 412, 150],
+      ['Métronidazole 250 mg', 'exp. 01/2027', 'MT-2988', 'B2', 40, 40, 120],
+      ['Artéméther / Luméfantrine', 'exp. 03/2027', 'AL-2291', 'C1', 144, 120, 313],
+      ['SRO + Zinc', 'exp. 11/2027', 'SZ-1140', 'D4', 30, 30, 3000],
+      ['Vitamine C 500 mg', 'exp. 12/2026', 'VC-0211', 'D1', 120, null, 200]
+    ].map((r) => {
+      const d = r[5] == null ? null : r[5] - r[4];
+      const v = d == null ? '' : (d === 0 ? '0' : (d > 0 ? '+ ' : '− ') + Math.abs(d * r[6]).toLocaleString('fr-FR').replace(/ | /g, ' ') + ' FC');
+      return { name: r[0], exp: r[2] ? r[1] : r[1], lot: r[2], shelf: r[3], sys: String(r[4]), count: r[5] == null ? '' : String(r[5]),
+        diff: d == null ? 'à compter' : (d === 0 ? '0' : (d > 0 ? '+' + d : '−' + Math.abs(d))),
+        diffStyle: d == null ? 'text-align: right; font-size: 13px; color: #8A948F' : (d === 0 ? num + 'color: #0A4A3A; font-weight: 500' : num + (d > 0 ? 'color: #1F5FA8' : 'color: #A8261B')),
+        value: v };
+    });
+    return { accent, nav: this.navFor('inv'), filters, rows };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,72 @@
+/*
+  Design tokens for the pharmacy back office.
+  Taken from the approved designs in ./screens. Use these values; don't invent new ones.
+
+  Tailwind v4 (create-next-app default): import this file in app/globals.css after
+  `@import "tailwindcss";`. The @theme block turns every token into utilities,
+  e.g. bg-ink, text-ink-muted, bg-warning-soft, rounded-card, font-mono.
+  Without Tailwind: use the CSS variables directly, e.g. var(--color-ink).
+
+  Fonts: load IBM Plex Sans (400, 500, 600, 700) and IBM Plex Mono (500, 600) with next/font/google
+  as CSS variables named --font-plex-sans and --font-plex-mono on <html>.
+*/
+
+@theme {
+  /* Surfaces */
+  --color-background: #F4F5F2;      /* page background, muted fills, row and box backgrounds */
+  --color-surface: #FFFFFF;         /* cards, header bar, inputs */
+  --color-border: #E2E5E0;          /* header bottom border, lot cards, secondary pagination */
+  --color-divider: #EEF0EC;         /* table row separators */
+  --color-border-strong: #CCD2CC;   /* inputs (1.5px), secondary buttons (1px) */
+
+  /* Text */
+  --color-ink: #16211D;             /* body text, sidebar background, selected chip */
+  --color-ink-muted: #5B6661;       /* secondary text, table headers, unselected chips */
+  --color-ink-faint: #8A948F;       /* remove (x) icons, "à compter" placeholders */
+
+  /* Sidebar (dark) */
+  --color-sidebar: #16211D;
+  --color-sidebar-item: #C9D1CC;
+  --color-sidebar-label: #8FA19A;   /* group labels STOCK / RAPPORTS / SYSTÈME */
+  --color-sidebar-active: #2A3832;
+
+  /* Brand */
+  --color-primary: #0E6B53;         /* primary buttons, links, progress, chart cash bars */
+  --color-primary-hover: #0A5240;   /* link hover */
+  --color-primary-soft: #E3F0EA;    /* OK badge, valid-rows tile, avatar, completed step */
+  --color-primary-tint: #B9D6C9;    /* sparkline bars (not the latest month) */
+  --color-on-primary-soft: #0A4A3A;
+  --color-row-tint: #F7FAF8;        /* "new line" entry row in the receiving table */
+
+  /* Status: always pair the colour with a text label, never colour alone */
+  --color-danger: #A8261B;          /* rupture (out of stock), expired, negative difference, error rows */
+  --color-danger-soft: #FBE9E7;
+  --color-warning: #8A4206;         /* stock bas (low stock), expire bientôt (expiring soon), offline */
+  --color-warning-soft: #FDF1E3;
+  --color-warning-dot: #D97A1E;     /* offline device dot, expiring-value bars */
+  --color-warning-row: #FFFAF3;     /* short-dated line in the receiving table */
+  --color-info: #1F5FA8;            /* positive difference (surplus) in the inventory count */
+  --color-rx: #2B3F86;              /* "Rx" / prescription */
+  --color-mobile-money: #E8A04A;    /* mobile money series in the sales chart */
+
+  /* Type */
+  --font-sans: var(--font-plex-sans), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, monospace;
+
+  /* Radius */
+  --radius-chip: 9px;               /* small filter buttons (36 tall) */
+  --radius-input: 10px;
+  --radius-control: 12px;           /* buttons, search, lot cards */
+  --radius-card: 16px;              /* section cards, KPI tiles */
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgba(22, 33, 29, 0.06);
+}
+
+:root {
+  --sidebar-width: 240px;           /* flex-basis; collapses to a top block under ~800px */
+  --page-pad-x: 32px;               /* main area side padding (16px on phones) */
+  --header-pad-y: 20px;
+  --control-h: 44px;                /* buttons, search, inputs, chips */
+  --control-h-lg: 48px;             /* primary actions at the bottom of forms */
+}

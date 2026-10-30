@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Consommation et péremptions</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Consommation et péremptions</h1>
+        <div style="font-size: 13px; color: #5B6661">6 derniers mois · sert à préparer les commandes</div>
+      </div>
+      <button style="height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid #CCD2CC; background: #FFFFFF; font: inherit; font-weight: 600; font-size: 14px; color: #16211D">Exporter Excel</button>
+      <button style="height: 44px; padding: 0 16px; border-radius: 12px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-weight: 700; font-size: 14px">Bon de commande suggéré</button>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <section style="flex: 3 1 620px; min-width: 0; background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 20px 12px">
+          <h2 style="margin: 0; font-size: 17px; flex: 1 1 auto">Consommation mensuelle</h2>
+          <span style="font-size: 13px; color: #5B6661">Couverture = stock ÷ moyenne mensuelle</span>
+        </div>
+        <div style="overflow-x: auto">
+          <div style="min-width: 820px">
+            <div style="display: grid; grid-template-columns: minmax(0, 1.8fr) 150px 100px 90px 110px 120px; gap: 12px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-top: 1px solid #EEF0EC; border-bottom: 1px solid #EEF0EC">
+              <div>Médicament</div><div>Mai → oct.</div><div style="text-align: right">Moy. / mois</div><div style="text-align: right">Stock</div><div style="text-align: right">Couverture</div><div style="text-align: right">À commander</div>
+            </div>
+            <sc-for list="{{rows}}" as="r" hint-placeholder-count="8">
+              <div style="display: grid; grid-template-columns: minmax(0, 1.8fr) 150px 100px 90px 110px 120px; gap: 12px; align-items: center; padding: 0 20px; min-height: 58px; border-bottom: 1px solid #EEF0EC; font-size: 14px">
+                <div style="min-width: 0"><div style="font-weight: 600">{{r.name}}</div><div style="font-size: 12px; color: #5B6661">{{r.unit}}</div></div>
+                <div role="img" aria-label="{{r.trendLabel}}" style="display: flex; align-items: flex-end; gap: 4px; height: 30px">
+                  <sc-for list="{{r.bars}}" as="b" hint-placeholder-count="6"><div style="{{b}}"></div></sc-for>
+                </div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.avg}}</div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{r.stock}}</div>
+                <div style="text-align: right"><span style="{{r.covStyle}}">{{r.cov}}</span></div>
+                <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{r.order}}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="padding: 14px 20px; font-size: 13px; color: #5B6661">« À commander » vise 2 mois de couverture, arrondi à la boîte.</div>
+      </section>
+
+      <aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <section style="background: #FFFFFF; border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 14px">
+          <h2 style="margin: 0; font-size: 17px">Valeur qui expire</h2>
+          <div style="font-size: 13px; color: #5B6661">Prix d'achat des lots encore en stock</div>
+          <sc-for list="{{expiry}}" as="e" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="display: flex; justify-content: space-between; font-size: 14px"><span>{{e.month}}</span><span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{e.value}}</span></div>
+              <div style="height: 8px; border-radius: 4px; background: #EEF0EC; overflow: hidden"><div style="{{e.barStyle}}"></div></div>
+              <div style="font-size: 12px; color: #5B6661">{{e.detail}}</div>
+            </div>
+          </sc-for>
+          <a href="Desk-Ajustements.dc.html" style="font-size: 14px; font-weight: 600; text-decoration: none">Gérer les lots</a>
+        </section>
+        <section style="background: #FFFFFF; border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 10px">
+          <h2 style="margin: 0; font-size: 17px">Autres rapports</h2>
+          <sc-for list="{{others}}" as="o" hint-placeholder-count="5">
+            <a href="#" style="display: flex; justify-content: space-between; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 10px; background: #F4F5F2; color: #16211D; text-decoration: none; font-size: 14px; font-weight: 600">{{o}}<span style="color: #5B6661">PDF · Excel</span></a>
+          </sc-for>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  fmt(n) { return Math.round(n).toLocaleString('fr-FR').replace(/[  ]/g, ' '); }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    // name, unit label, units per box, stock (units), monthly consumption May→Oct (units)
+    const data = [
+      ['Paracétamol 500 mg', 'plaquettes', 1, 184, [260, 280, 300, 310, 290, 320]],
+      ['Artéméther / Luméfantrine 20/120', 'boîtes', 1, 6, [38, 44, 52, 60, 55, 48]],
+      ['Amoxicilline 500 mg', 'plaquettes', 1, 42, [70, 75, 82, 80, 88, 90]],
+      ['SRO + Zinc', 'kits', 1, 30, [40, 46, 50, 38, 42, 44]],
+      ['Ibuprofène 400 mg', 'plaquettes', 1, 67, [60, 62, 70, 68, 72, 75]],
+      ['Métronidazole 250 mg', 'plaquettes', 1, 4, [20, 24, 22, 26, 25, 28]],
+      ['Quinine 300 mg', 'boîtes', 1, 0, [12, 10, 14, 9, 11, 13]],
+      ['Vitamine C 500 mg', 'tubes', 1, 15, [8, 6, 7, 9, 8, 10]]
+    ];
+    const badge = 'display: inline-block; font-family: \'IBM Plex Mono\', monospace; font-size: 13px; font-weight: 700; padding: 3px 8px; border-radius: 6px; ';
+    const rows = data.map((d) => {
+      const avg = d[4].reduce((s, x) => s + x, 0) / d[4].length;
+      const cov = d[3] / avg;
+      const need = Math.max(0, Math.ceil(avg * 2 - d[3]));
+      const mx = Math.max(...d[4]);
+      return {
+        name: d[0], unit: 'en ' + d[1],
+        bars: d[4].map((x, i) => 'flex: 1; height: ' + Math.max(3, Math.round(x / mx * 30)) + 'px; border-radius: 2px; background: ' + (i === 5 ? accent : '#B9D6C9')),
+        trendLabel: 'De ' + d[4][0] + ' à ' + d[4][5] + ' par mois',
+        avg: this.fmt(avg), stock: this.fmt(d[3]),
+        cov: cov < 0.05 ? '0 mois' : cov.toFixed(1).replace('.', ',') + ' mois',
+        covStyle: badge + (cov < 0.5 ? 'background: #FBE9E7; color: #A8261B' : cov < 1 ? 'background: #FDF1E3; color: #8A4206' : 'background: #E3F0EA; color: #0A4A3A'),
+        order: need ? this.fmt(need) : '—'
+      };
+    });
+    const exp = [['Octobre (expirés)', 24000, '2 lots · à retirer'], ['Novembre', 61200, 'Paracétamol PC-8810 · 34 plaq.'], ['Décembre', 18400, 'Vitamine C VC-0211 · 6 tubes'], ['Janvier', 9600, 'Métronidazole MT-2988 · 4 plaq.']];
+    const mx = Math.max(...exp.map((e) => e[1]));
+    const expiry = exp.map((e, i) => ({ month: e[0], value: this.fmt(e[1]) + ' FC', detail: e[2], barStyle: 'height: 100%; width: ' + Math.round(e[1] / mx * 100) + '%; background: ' + (i === 0 ? '#A8261B' : '#D97A1E') }));
+    const others = ['État du stock', 'Achats par fournisseur', 'Inventaires clôturés', 'Mouvements par lot', 'Produits les plus utilisés'];
+    return { accent, nav: this.navFor('con'), rows, expiry, others };
+  }
+}
+</script>
+</body>
+</html>

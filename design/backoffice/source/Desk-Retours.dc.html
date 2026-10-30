@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Retours</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Retours</h1>
+        <div style="font-size: 13px; color: #5B6661">Chaque retour crée un mouvement de stock lié au ticket ou à la réception d'origine</div>
+      </div>
+      <div role="tablist" style="display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: #F4F5F2">
+        <button role="tab" aria-selected="true" style="height: 40px; padding: 0 16px; border-radius: 9px; border: 0; background: #FFFFFF; color: #16211D; font: inherit; font-weight: 700; font-size: 14px; box-shadow: 0 1px 2px rgba(22,33,29,0.08)">Retour client</button>
+        <button role="tab" aria-selected="false" style="height: 40px; padding: 0 16px; border-radius: 9px; border: 0; background: transparent; color: #5B6661; font: inherit; font-weight: 600; font-size: 14px">Retour fournisseur</button>
+      </div>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+      <div style="flex: 2 1 560px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <section style="background: #FFFFFF; border-radius: 16px; padding: 20px 24px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end">
+          <label style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">N° du ticket d'origine
+            <input type="text" value="C1-0441" style="height: 44px; box-sizing: border-box; padding: 0 12px; border: 1.5px solid #CCD2CC; border-radius: 10px; font-family: 'IBM Plex Mono', monospace; font-size: 15px; color: #16211D"></label>
+          <div style="flex: 2 1 260px; font-size: 14px; color: #5B6661; padding-bottom: 10px">Vendu le 21/10/2026 à 15:02 · Caisse 1 · <span style="color: #16211D; font-weight: 600">12 500 FC</span> en espèces</div>
+        </section>
+
+        <section style="background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); overflow: hidden">
+          <h2 style="margin: 0; padding: 18px 20px 12px; font-size: 17px">Articles du ticket</h2>
+          <div style="overflow-x: auto">
+            <div style="min-width: 680px">
+              <div style="display: grid; grid-template-columns: 44px minmax(0, 2fr) 90px 150px 120px; gap: 12px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-top: 1px solid #EEF0EC; border-bottom: 1px solid #EEF0EC">
+                <div></div><div>Article</div><div style="text-align: right">Vendu</div><div style="text-align: right">À retourner</div><div style="text-align: right">Montant</div>
+              </div>
+              <sc-for list="{{lines}}" as="l" hint-placeholder-count="3">
+                <div style="display: grid; grid-template-columns: 44px minmax(0, 2fr) 90px 150px 120px; gap: 12px; align-items: center; padding: 0 20px; min-height: 60px; border-bottom: 1px solid #EEF0EC; font-size: 14px">
+                  <input type="checkbox" aria-label="Retourner {{l.name}}" checked="{{l.on}}" style="width: 22px; height: 22px; accent-color: #0E6B53">
+                  <div style="min-width: 0"><div style="font-weight: 600">{{l.name}}</div><div style="font-size: 12px; color: #5B6661">{{l.lot}}</div></div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{l.sold}}</div>
+                  <div style="display: flex; justify-content: flex-end"><input type="text" aria-label="Quantité à retourner" value="{{l.ret}}" style="width: 90px; height: 40px; box-sizing: border-box; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 9px; font-family: 'IBM Plex Mono', monospace; font-size: 14px; text-align: right"></div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; font-weight: 600">{{l.amount}}</div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding: 18px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px 16px">
+            <label style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #5B6661">Motif
+              <select style="height: 44px; padding: 0 10px; border: 1.5px solid #CCD2CC; border-radius: 10px; font: inherit; font-size: 15px; color: #16211D; background: #FFFFFF"><option>Erreur de produit à la vente</option><option>Effet indésirable</option><option>Ordonnance modifiée</option></select></label>
+            <fieldset style="border: 0; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 6px">
+              <legend style="font-size: 13px; color: #5B6661; margin-bottom: 6px">Que faire du produit ?</legend>
+              <label style="display: flex; align-items: center; gap: 10px; min-height: 36px; font-size: 14px"><input type="radio" name="dest" checked style="width: 20px; height: 20px; accent-color: #0E6B53">Remettre en stock (emballage intact)</label>
+              <label style="display: flex; align-items: center; gap: 10px; min-height: 36px; font-size: 14px"><input type="radio" name="dest" style="width: 20px; height: 20px; accent-color: #0E6B53">Mettre au rebut</label>
+            </fieldset>
+          </div>
+        </section>
+      </div>
+
+      <aside style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+        <section style="background: #FFFFFF; border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 10px">
+          <h2 style="margin: 0 0 4px; font-size: 17px">Remboursement</h2>
+          <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5B6661">Articles</span><span style="font-family: 'IBM Plex Mono', monospace">1 boîte</span></div>
+          <div style="display: flex; justify-content: space-between; font-size: 14px"><span style="color: #5B6661">Mode</span><span>Espèces</span></div>
+          <div style="height: 1px; background: #EEF0EC; margin: 4px 0"></div>
+          <div style="display: flex; justify-content: space-between; align-items: baseline"><span style="font-weight: 600">À rembourser</span><span style="font-family: 'IBM Plex Mono', monospace; font-size: 24px; font-weight: 600">7 500 FC</span></div>
+          <button style="margin-top: 8px; height: 48px; border-radius: 12px; border: 0; background: {{accent}}; color: #FFFFFF; font: inherit; font-size: 15px; font-weight: 700">Valider le retour</button>
+          <div style="font-size: 12px; color: #5B6661; text-align: center">Un reçu de retour est imprimé pour le client</div>
+        </section>
+        <section style="background: #FFFFFF; border-radius: 16px; padding: 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 12px">
+          <h2 style="margin: 0; font-size: 17px">Retours récents</h2>
+          <sc-for list="{{recent}}" as="r" hint-placeholder-count="3">
+            <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px">
+              <div style="min-width: 0"><div style="font-weight: 600">{{r.what}}</div><div style="font-size: 12px; color: #5B6661">{{r.who}}</div></div>
+              <div style="text-align: right; white-space: nowrap"><div style="font-family: 'IBM Plex Mono', monospace">{{r.amount}}</div><div style="font-size: 12px; color: #5B6661">{{r.date}}</div></div>
+            </div>
+          </sc-for>
+        </section>
+      </aside>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    const lines = [
+      { name: 'Artéméther / Luméfantrine 20/120', lot: 'Lot AL-2291', sold: '1 bte', ret: '1', amount: '7 500 FC', on: true },
+      { name: 'Paracétamol 500 mg', lot: 'Lot PC-8810', sold: '2 plaq.', ret: '0', amount: '0 FC', on: false },
+      { name: 'SRO + Zinc', lot: 'Lot SZ-1140', sold: '1 kit', ret: '0', amount: '0 FC', on: false }
+    ];
+    const recent = [
+      { what: 'Ticket C1-0398 · 1 article', who: 'Client · remis en stock', amount: '2 500 FC', date: '18/10' },
+      { what: 'BL-2026-1160 · 2 lignes', who: 'Fournisseur · lot endommagé', amount: '24,00 USD', date: '15/10' },
+      { what: 'Ticket C1-0310 · 1 article', who: 'Client · rebut', amount: '1 500 FC', date: '09/10' }
+    ];
+    return { accent, nav: this.navFor('ret'), lines, recent };
+  }
+}
+</script>
+</body>
+</html>

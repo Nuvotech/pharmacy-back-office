@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Tableau de bord</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0}
+a{color:#0E6B53}a:hover{color:#0A5240}
+</style>
+</helmet>
+<div style="display: flex; flex-wrap: wrap; min-height: 960px; background: #F4F5F2; font-family: 'IBM Plex Sans', system-ui, sans-serif; color: #16211D">
+
+  <nav aria-label="Menu principal" style="flex: 1 1 240px; box-sizing: border-box; padding: 20px 14px; background: #16211D; display: flex; flex-direction: column; gap: 2px">
+    <div style="display: flex; align-items: center; gap: 10px; padding: 0 8px 20px">
+      <div style="width: 32px; height: 32px; flex-shrink: 0; border-radius: 8px; background: {{accent}}; display: flex; align-items: center; justify-content: center">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+      </div>
+      <div style="min-width: 0">
+        <div style="color: #FFFFFF; font-weight: 700; font-size: 14px">[NOM DE LA PHARMACIE]</div>
+        <div style="color: #8FA19A; font-size: 12px">Back-office</div>
+      </div>
+    </div>
+    <sc-for list="{{nav}}" as="g" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px">
+        <sc-if value="{{g.hasLabel}}" hint-placeholder-val="{{true}}">
+          <div style="padding: 6px 12px; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #8FA19A">{{g.label}}</div>
+        </sc-if>
+        <sc-for list="{{g.items}}" as="i" hint-placeholder-count="3">
+          <a href="{{i.href}}" style="{{i.style}}">{{i.label}}</a>
+        </sc-for>
+      </div>
+    </sc-for>
+  </nav>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 20px 32px; background: #FFFFFF; border-bottom: 1px solid #E2E5E0">
+      <div style="flex: 1 1 240px; min-width: 0">
+        <h1 style="margin: 0; font-size: 22px; font-weight: 700">Tableau de bord</h1>
+        <div style="font-size: 13px; color: #5B6661">Vendredi 23 octobre 2026</div>
+      </div>
+      <a href="#" style="display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: 10px; background: #F4F5F2; color: #16211D; text-decoration: none; font-size: 14px">
+        <span style="color: #5B6661">Taux du jour</span>
+        <span style="font-family: 'IBM Plex Mono', monospace; font-weight: 600">1 USD = 2 800 FC</span>
+      </a>
+      <div style="display: flex; align-items: center; gap: 10px; font-size: 14px">
+        <div style="width: 36px; height: 36px; border-radius: 50%; background: #E3F0EA; color: #0A4A3A; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px">JM</div>
+        <div><div style="font-weight: 600">J. Mbuyi</div><div style="font-size: 12px; color: #5B6661">Pharmacien</div></div>
+      </div>
+    </header>
+
+    <div style="padding: 24px 32px 40px; display: flex; flex-direction: column; gap: 20px">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px">
+        <sc-for list="{{tiles}}" as="t" hint-placeholder-count="6">
+          <a href="{{t.href}}" style="{{t.style}}">
+            <span style="font-size: 13px; font-weight: 600">{{t.label}}</span>
+            <span style="font-family: 'IBM Plex Mono', monospace; font-size: 26px; font-weight: 600">{{t.value}}</span>
+            <span style="font-size: 12px; opacity: 0.85">{{t.sub}}</span>
+          </a>
+        </sc-for>
+      </div>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start">
+        <section style="flex: 2 1 560px; min-width: 0; background: #FFFFFF; border-radius: 16px; box-shadow: 0 1px 2px rgba(22,33,29,0.06)">
+          <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 18px 20px 12px">
+            <h2 style="margin: 0; font-size: 17px; flex: 1 1 auto">À traiter</h2>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap">
+              <button style="height: 36px; padding: 0 12px; border-radius: 9px; border: 0; background: #16211D; color: #FFFFFF; font: inherit; font-size: 13px; font-weight: 600">Tout · 21</button>
+              <button style="height: 36px; padding: 0 12px; border-radius: 9px; border: 0; background: transparent; color: #5B6661; font: inherit; font-size: 13px; font-weight: 600">Ruptures</button>
+              <button style="height: 36px; padding: 0 12px; border-radius: 9px; border: 0; background: transparent; color: #5B6661; font: inherit; font-size: 13px; font-weight: 600">Stock bas</button>
+              <button style="height: 36px; padding: 0 12px; border-radius: 9px; border: 0; background: transparent; color: #5B6661; font: inherit; font-size: 13px; font-weight: 600">Péremptions</button>
+            </div>
+          </div>
+          <div style="overflow-x: auto">
+            <div style="min-width: 620px">
+              <div style="display: grid; grid-template-columns: minmax(0, 2fr) 110px 90px 130px 120px; gap: 12px; padding: 10px 20px; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: #5B6661; border-top: 1px solid #EEF0EC; border-bottom: 1px solid #EEF0EC">
+                <div>Médicament</div><div style="text-align: right">Stock</div><div style="text-align: right">Seuil</div><div>Alerte</div><div></div>
+              </div>
+              <sc-for list="{{alerts}}" as="a" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: minmax(0, 2fr) 110px 90px 130px 120px; gap: 12px; align-items: center; padding: 0 20px; min-height: 56px; border-bottom: 1px solid #EEF0EC; font-size: 14px">
+                  <div style="min-width: 0">
+                    <div style="font-weight: 600">{{a.name}}</div>
+                    <div style="font-size: 12px; color: #5B6661">{{a.detail}}</div>
+                  </div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace">{{a.qty}}</div>
+                  <div style="text-align: right; font-family: 'IBM Plex Mono', monospace; color: #5B6661">{{a.min}}</div>
+                  <div><span style="{{a.badgeStyle}}">{{a.badge}}</span></div>
+                  <div style="text-align: right"><a href="{{a.href}}" style="font-size: 13px; font-weight: 600; text-decoration: none">{{a.action}}</a></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="padding: 14px 20px"><a href="#" style="font-size: 14px; font-weight: 600; text-decoration: none">Voir les 21 alertes</a></div>
+        </section>
+
+        <div style="flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+          <section style="background: #FFFFFF; border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 12px">
+            <h2 style="margin: 0; font-size: 17px">Dernières réceptions</h2>
+            <sc-for list="{{receptions}}" as="r" hint-placeholder-count="3">
+              <div style="display: flex; justify-content: space-between; gap: 12px; font-size: 14px">
+                <div style="min-width: 0"><div style="font-weight: 600">{{r.ref}}</div><div style="font-size: 12px; color: #5B6661">{{r.supplier}}</div></div>
+                <div style="text-align: right; white-space: nowrap"><div style="font-family: 'IBM Plex Mono', monospace">{{r.lines}}</div><div style="font-size: 12px; color: #5B6661">{{r.date}}</div></div>
+              </div>
+            </sc-for>
+            <a href="Desk-Reception.dc.html" style="height: 44px; border-radius: 12px; background: {{accent}}; color: #FFFFFF; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; text-decoration: none; margin-top: 4px">Nouvelle réception</a>
+          </section>
+          <section style="background: #FFFFFF; border-radius: 16px; padding: 18px 20px; box-shadow: 0 1px 2px rgba(22,33,29,0.06); display: flex; flex-direction: column; gap: 12px">
+            <h2 style="margin: 0; font-size: 17px">Appareils</h2>
+            <sc-for list="{{devices}}" as="d" hint-placeholder-count="3">
+              <div style="display: flex; align-items: center; gap: 10px">
+                <span style="{{d.dot}}"></span>
+                <div style="min-width: 0"><div style="font-size: 14px; font-weight: 600">{{d.name}}</div><div style="font-size: 12px; color: #5B6661">{{d.status}}</div></div>
+              </div>
+            </sc-for>
+          </section>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"accent":{"editor":"color","default":"#0E6B53","options":["#0E6B53","#1F5FA8","#7A3E9D"]},"$preview":{"width":1440,"height":960}}'>
+class Component extends DCLogic {
+  navFor(active) {
+    const base = 'display: flex; align-items: center; min-height: 40px; padding: 0 12px; border-radius: 10px; text-decoration: none; font-size: 14px; font-weight: 500; ';
+    const groups = [
+      ['', [['dash', 'Tableau de bord', 'Desk-Dashboard.dc.html']]],
+      ['Stock', [['med', 'Médicaments', 'Desk-Medicaments.dc.html'], ['rec', 'Réceptions', 'Desk-Reception.dc.html'], ['imp', 'Import du stock', 'Desk-Import.dc.html'], ['inv', 'Inventaire', 'Desk-Inventaire.dc.html'], ['ret', 'Retours', 'Desk-Retours.dc.html'], ['adj', 'Ajustements', 'Desk-Ajustements.dc.html']]],
+      ['Rapports', [['ven', 'Ventes', 'Desk-Rapport-Ventes.dc.html'], ['con', 'Consommation', 'Desk-Consommation.dc.html']]],
+      ['Système', [['par', 'Paramètres', '#'], ['syn', 'Synchronisation', '#']]]
+    ];
+    return groups.map((g) => ({ label: g[0], hasLabel: !!g[0], items: g[1].map((i) => ({ label: i[1], href: i[2], style: base + (i[0] === active ? 'background: #2A3832; color: #FFFFFF' : 'color: #C9D1CC') })) }));
+  }
+  renderVals() {
+    const accent = this.props.accent ?? '#0E6B53';
+    const tile = 'min-height: 108px; box-sizing: border-box; border-radius: 16px; padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between; text-decoration: none; ';
+    const plain = tile + 'background: #FFFFFF; color: #16211D; box-shadow: 0 1px 2px rgba(22,33,29,0.06)';
+    const red = tile + 'background: #FBE9E7; color: #A8261B';
+    const amber = tile + 'background: #FDF1E3; color: #8A4206';
+    const tiles = [
+      { label: 'Ventes du jour', value: '1 284 500', sub: 'FC · 58 tickets', style: plain, href: 'Desk-Rapport-Ventes.dc.html' },
+      { label: 'Valeur du stock', value: '41,6 M', sub: 'FC · prix d\'achat', style: plain, href: 'Desk-Medicaments.dc.html' },
+      { label: 'Ruptures', value: '3', sub: 'médicaments à 0', style: red, href: '#' },
+      { label: 'Stock bas', value: '11', sub: 'sous le seuil', style: amber, href: '#' },
+      { label: 'Expire < 90 jours', value: '7', sub: 'lots', style: amber, href: 'Desk-Ajustements.dc.html' },
+      { label: 'Expirés', value: '2', sub: 'lots à retirer', style: red, href: 'Desk-Ajustements.dc.html' }
+    ];
+    const badge = 'display: inline-block; font-size: 12px; font-weight: 700; padding: 4px 8px; border-radius: 6px; ';
+    const B = {
+      out: [badge + 'background: #FBE9E7; color: #A8261B', 'Rupture', 'Commander', 'Desk-Reception.dc.html'],
+      low: [badge + 'background: #FDF1E3; color: #8A4206', 'Stock bas', 'Commander', 'Desk-Reception.dc.html'],
+      exp: [badge + 'background: #FDF1E3; color: #8A4206', 'Expire bientôt', 'Voir le lot', 'Desk-Ajustements.dc.html'],
+      dead: [badge + 'background: #FBE9E7; color: #A8261B', 'Expiré', 'Retirer', 'Desk-Ajustements.dc.html']
+    };
+    const alerts = [
+      ['Ceftriaxone 1 g inj.', 'Vendu 4×/semaine', '0', '10', 'out'],
+      ['Quinine 300 mg', 'Aucun lot', '0', '15', 'out'],
+      ['Artéméther / Luméfantrine 20/120', '~2 jours de vente', '6', '30', 'low'],
+      ['Métronidazole 250 mg', '1 lot', '4', '20', 'low'],
+      ['Paracétamol 500 mg · lot PC-8810', 'Expire le 30/11/2026', '34', '—', 'exp'],
+      ['Gentamicine 80 mg inj. · lot GT-0098', 'Expiré le 15/10/2026', '12', '—', 'dead']
+    ].map((r) => ({ name: r[0], detail: r[1], qty: r[2], min: r[3], badgeStyle: B[r[4]][0], badge: B[r[4]][1], action: B[r[4]][2], href: B[r[4]][3] }));
+    const receptions = [
+      { ref: 'BL-2026-1187', supplier: '[GROSSISTE A]', lines: '5 lignes', date: 'Aujourd\'hui' },
+      { ref: 'BL-2026-1179', supplier: '[GROSSISTE B]', lines: '12 lignes', date: '20/10' },
+      { ref: 'BL-2026-1160', supplier: '[GROSSISTE A]', lines: '8 lignes', date: '14/10' }
+    ];
+    const dot = 'width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; background: ';
+    const devices = [
+      { name: 'Tablette comptoir', status: 'Hors ligne depuis 09:15 · 12 ventes en attente', dot: dot + '#D97A1E' },
+      { name: 'Tablette arrière-boutique', status: 'En ligne', dot: dot + '#0E6B53' },
+      { name: 'Ordinateur portable', status: 'En ligne · cette session', dot: dot + '#0E6B53' }
+    ];
+    return { accent, nav: this.navFor('dash'), tiles, alerts, receptions, devices };
+  }
+}
+</script>
+</body>
+</html>
