@@ -15,5 +15,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('auth/logout', [AuthController::class, 'logout'])->name('auth.logout');
         Route::get('accounts', [AccountController::class, 'index'])->middleware('abilities:counter')->name('accounts.index');
         Route::get('sync/catalogue', [SyncController::class, 'catalogue'])->middleware('abilities:counter')->name('sync.catalogue');
+        Route::get('sync/stock', [SyncController::class, 'stock'])->middleware('abilities:counter')->name('sync.stock');
+        Route::post('sync/push', [SyncController::class, 'push'])->middleware('abilities:counter')->name('sync.push');
     });
 });

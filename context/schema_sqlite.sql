@@ -57,13 +57,16 @@ CREATE TABLE IF NOT EXISTS medicine_categories (
   PRIMARY KEY (medicine_id, category_slug)
 );
 
+-- Filled from GET /api/v1/sync/stock; a lot the server reports at 0 or less is deleted.
+-- Sellable units = server_qty minus this tablet's unsynced sales (kept in memory until sales sync exists).
 CREATE TABLE IF NOT EXISTS batches (
   id                TEXT PRIMARY KEY,                  -- server UUID
-  medicine_id       TEXT NOT NULL REFERENCES medicines(id),
+  medicine_id       TEXT NOT NULL,
   lot_number        TEXT NOT NULL,
-  expiry_date       TEXT NOT NULL,                     -- YYYY-MM-DD
-  qty_on_hand       INTEGER NOT NULL,                  -- units; server value minus unsynced local sales
-  updated_at        TEXT NOT NULL
+  expiry_date       TEXT NOT NULL,                     -- YYYY-MM-DD, last day of the expiry month
+  server_qty        INTEGER NOT NULL,                  -- units on the server at the last download
+  opened_pack_units INTEGER NOT NULL DEFAULT 0,        -- units left in the pack opened on this tablet
+  received_at       TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS batches_fefo_index ON batches (medicine_id, expiry_date);
 
@@ -93,6 +96,10 @@ END;
 
 -- ---------------------------------------------------------------------
 -- Created on this tablet
+-- As built in pharm-app (migration 4): `sales` keeps the whole sale as JSON
+--   (id, receipt_no UNIQUE, sold_at, record TEXT, synced_at), and `outbox` has
+--   (id, type, payload, created_at, status 'pending'|'failed', attempts, last_error).
+-- The detailed tables below are the target design; sale_items are on the server.
 -- ---------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS sales (
   id                TEXT PRIMARY KEY,                  -- UUID generated on the tablet

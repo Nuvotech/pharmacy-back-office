@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\Role;
+use App\Models\ExchangeRate;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,7 +17,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([SettingsSeeder::class, MedicineSeeder::class]);
+        $this->call([SettingsSeeder::class, MedicineSeeder::class, SupplierSeeder::class]);
+
+        // Local testing only: a USD invoice needs a rate, and there is no screen to enter it yet.
+        ExchangeRate::query()->firstOrCreate(['rate_date' => today()->toDateString()], ['usd_to_cdf' => '2800']);
 
         User::factory()->role(Role::Admin)->create([
             'name' => 'Test User',

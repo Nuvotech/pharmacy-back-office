@@ -59,7 +59,10 @@ single source of truth for stock.
   from a device, by its UUID. Views `v_medicine_stock` and `v_batch_expiry` feed alerts and the dashboard.
   Categories are a `categories` table linked to medicines through `category_medicine` (a medicine can be in
   several); a medicine's photo is `medicines.image_path` on the public disk. Prices are in CDF
-  (`settings.base_currency`).
+  (`settings.base_currency`). A reception is a `draft` until validated: its `reception_lines` keep the
+  invoice as typed (packs, cost per pack in the invoice currency, USD or CDF); validation creates one lot
+  per line with `purchase_price_unit` in CDF (USD converted at the rate in force on the reception date,
+  stored on the reception) and records it through the stock ledger (`App\Domain\Stock\RecordStockMovement`).
 - **SQLite (each mobile device)**: a copy of medicines, lots with quantities, cashiers' PIN hashes, settings
   and the day's rate, overwritten by each pull; plus the sales made on that device, held (paused) sales, and
   the outbox of events not yet accepted by the server. Unsynced sales and held sales are the only data a
@@ -94,6 +97,8 @@ holds what the current screen needs.
 
 1. **Up:** after each sale the device writes a `sale_created` event to its outbox. On reconnect, on
    **Sync now**, and every few minutes while online, it pushes outbox events in batches to `POST /api/v1/sync/push`.
+   - **Built so far:** pharm-app pushes right after each sale, every 30 s while online, on reconnect and on
+     foreground (`SalesSyncProvider`). Until device registration exists, the device is the token name.
 2. **Server ingest:** each event is applied in one transaction and recorded in `sync_events`; an event id seen
    before is acknowledged and skipped. If the lot sold is short, the shortfall moves to the next FEFO lot;
    if no lot can cover it, a `stock_discrepancies` row is created for the pharmacist.
@@ -103,8 +108,12 @@ holds what the current screen needs.
      changed since an opaque `(updated_at, id)` cursor, up to 500 per page, deactivated ones included so the
      tablet deletes them, plus every category and `server_time`. pharm-app stores it in SQLite and runs it
      at online sign-in, when NetInfo reports the connection is back, when the app returns to the
-     foreground, and every 5 minutes. Accounts come from `GET /api/v1/accounts`. Lots, settings and rates
-     are not pulled yet. Changing a medicine's categories must touch the medicine, or tablets miss it.
+     foreground, and every 5 minutes. Accounts come from `GET /api/v1/accounts`. Lots come from
+     `GET /api/v1/sync/stock?cursor=` (same cursor, `App\Domain\Sync\SyncCursor`): every lot changed since,
+     including used-up ones, checked every minute and on sign-in, reconnect and foreground. Every stock
+     movement touches its lot's `updated_at`, which is what sends it down. The tablet keeps the opened pack
+     itself and subtracts its unsynced sales from the server quantity. Settings and rates are not pulled
+     yet. Changing a medicine's categories must touch the medicine, or tablets miss it.
 
 ## Auth and Access Model
 
@@ -130,6 +139,8 @@ holds what the current screen needs.
   with bcryptjs, and the session has no token. A refusal from the server is never retried offline.
   Accounts are managed by admins on the back-office "Utilisateurs" page; changing the PIN, password, role
   or username, or deactivating an account, revokes its tokens.
+- **Receptions** are done only in the web back office (`ReceptionPolicy`: admin, pharmacist), never in the
+  mobile apps; there is no device API for them.
 
 ## Invariants
 

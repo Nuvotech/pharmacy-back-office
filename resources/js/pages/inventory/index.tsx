@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
 import { Button } from '@/components/backoffice/button';
 import { Card } from '@/components/backoffice/card';
@@ -8,15 +9,25 @@ import { PageContent, PageHeader } from '@/components/backoffice/page-header';
 import { SearchInput } from '@/components/backoffice/search-input';
 import { StatTile } from '@/components/backoffice/stat-tile';
 import { formatNumber, formatSigned, formatSignedFc } from '@/lib/format';
-import { inventoryLines, inventorySession } from '@/lib/mock/inventory';
-import type { InventoryLine } from '@/lib/mock/inventory';
+import type { InventoryCountData, InventoryLine } from '@/lib/inventory';
 import { showNotAvailableYet } from '@/lib/not-available';
 import { cn } from '@/lib/utils';
+import { close, store } from '@/routes/inventory';
+import { update as updateLine } from '@/routes/inventory/lines';
+
+type InventoryIndexProps = {
+    /** The open count, or null when none is running. */
+    count: InventoryCountData | null;
+    /** Its lots, by medicine then expiry. */
+    lines: InventoryLine[];
+    /** When the last count was closed (ISO), or null. */
+    lastClosedAt: string | null;
+};
 
 type CountFilter = 'all' | 'differences' | 'uncounted';
 
-/** Counted units typed per lot; an empty string means not counted. */
-type Counts = Record<string, string>;
+/** Counted units typed per line; an empty string means not counted. */
+type Counts = Record<number, string>;
 
 function parseCount(text: string | undefined): number | null {
     const digits = (text ?? '').replace(/\s/g, '');
@@ -24,26 +35,124 @@ function parseCount(text: string | undefined): number | null {
     return /^\d+$/.test(digits) ? Number(digits) : null;
 }
 
-export default function InventoryIndex() {
+const dateTime = (iso: string) =>
+    new Intl.DateTimeFormat('fr-FR', {
+        day: '2-digit',
+        month: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+    })
+        .format(new Date(iso))
+        .replace(' ', ' à ');
+
+export default function InventoryIndex({
+    count,
+    lines,
+    lastClosedAt,
+}: InventoryIndexProps) {
+    if (count === null) {
+        return <NoCountOpen lastClosedAt={lastClosedAt} />;
+    }
+
+    return <OpenCount key={count.id} count={count} lines={lines} />;
+}
+
+function NoCountOpen({ lastClosedAt }: { lastClosedAt: string | null }) {
+    const [isStarting, setIsStarting] = useState(false);
+
+    const start = () => {
+        router.post(
+            store(),
+            {},
+            {
+                onStart: () => setIsStarting(true),
+                onFinish: () => setIsStarting(false),
+            },
+        );
+    };
+
+    return (
+        <>
+            <PageHeader
+                title="Inventaire"
+                subtitle={
+                    lastClosedAt
+                        ? `Dernier inventaire clôturé le ${dateTime(lastClosedAt)}`
+                        : 'Aucun inventaire encore réalisé'
+                }
+            />
+            <PageContent>
+                <Card isRoomy className="max-w-[640px]">
+                    <p className="text-sm text-ink-muted">
+                        L'inventaire liste chaque lot en stock avec la quantité
+                        attendue par le système. Comptez les rayons, saisissez
+                        les quantités, puis clôturez : chaque écart devient un
+                        ajustement signé à votre nom.
+                    </p>
+                    <Button
+                        size="large"
+                        className="self-start px-[22px]"
+                        disabled={isStarting}
+                        onClick={start}
+                    >
+                        Démarrer l'inventaire
+                    </Button>
+                </Card>
+            </PageContent>
+        </>
+    );
+}
+
+function OpenCount({
+    count,
+    lines,
+}: {
+    count: InventoryCountData;
+    lines: InventoryLine[];
+}) {
     const [counts, setCounts] = useState<Counts>(() =>
         Object.fromEntries(
-            inventoryLines.map((line) => [
+            lines.map((line) => [
                 line.id,
-                line.countedUnits === null ? '' : String(line.countedUnits),
+                line.counted_units === null ? '' : String(line.counted_units),
             ]),
         ),
     );
+    const [saved, setSaved] = useState<Counts>(counts);
     const [search, setSearch] = useState('');
     const [filter, setFilter] = useState<CountFilter>('all');
+    const [isClosing, setIsClosing] = useState(false);
 
     const differenceOf = (line: InventoryLine): number | null => {
         const counted = parseCount(counts[line.id]);
 
-        return counted === null ? null : counted - line.systemUnits;
+        return counted === null ? null : counted - line.expected_units;
     };
+    const isInvalid = (line: InventoryLine) =>
+        (counts[line.id] ?? '').trim() !== '' &&
+        parseCount(counts[line.id]) === null;
+
+    const countedLots = lines.filter(
+        (line) => differenceOf(line) !== null,
+    ).length;
+    const uncountedLots = lines.length - countedLots;
+    const linesWithDifference = lines.filter((line) => {
+        const difference = differenceOf(line);
+
+        return difference !== null && difference !== 0;
+    });
+    const differenceValue = Math.round(
+        linesWithDifference.reduce(
+            (sum, line) =>
+                sum + (differenceOf(line) ?? 0) * Number(line.unit_cost),
+            0,
+        ),
+    );
+    const progressPercent =
+        lines.length === 0 ? 0 : Math.round((countedLots / lines.length) * 100);
 
     const query = search.trim().toLowerCase();
-    const visibleLines = inventoryLines.filter((line) => {
+    const visibleLines = lines.filter((line) => {
         const difference = differenceOf(line);
         const matchesFilter =
             filter === 'all' ||
@@ -53,16 +162,50 @@ export default function InventoryIndex() {
             (filter === 'uncounted' && difference === null);
         const matchesSearch =
             query === '' ||
-            `${line.medicine} ${line.lotCode} ${line.shelf}`
-                .toLowerCase()
-                .includes(query);
+            `${line.medicine} ${line.lot_number}`.toLowerCase().includes(query);
 
         return matchesFilter && matchesSearch;
     });
 
-    const progressPercent = Math.round(
-        (inventorySession.countedLots / inventorySession.totalLots) * 100,
-    );
+    /** Saves a line when the user leaves its box, if it changed and reads as a number (or is blank). */
+    const saveLine = (line: InventoryLine) => {
+        const text = (counts[line.id] ?? '').trim();
+        if (text === (saved[line.id] ?? '') || isInvalid(line)) {
+            return;
+        }
+
+        router.patch(
+            updateLine(line.id),
+            { counted_units: text },
+            {
+                preserveScroll: true,
+                preserveState: true,
+                only: ['lines'],
+                onSuccess: () =>
+                    setSaved((current) => ({ ...current, [line.id]: text })),
+            },
+        );
+    };
+
+    const closeCount = () => {
+        const message =
+            linesWithDifference.length === 0
+                ? 'Clôturer l’inventaire ? Aucun écart ne sera enregistré.'
+                : `Clôturer l’inventaire ? ${linesWithDifference.length} ${linesWithDifference.length === 1 ? 'écart deviendra un ajustement' : 'écarts deviendront des ajustements'} signés à votre nom. Les lots non comptés gardent leur quantité.`;
+
+        if (!window.confirm(message)) {
+            return;
+        }
+
+        router.post(
+            close(count.id),
+            {},
+            {
+                onStart: () => setIsClosing(true),
+                onFinish: () => setIsClosing(false),
+            },
+        );
+    };
 
     const columns: DataTableColumn<InventoryLine>[] = [
         {
@@ -85,23 +228,21 @@ export default function InventoryIndex() {
             header: 'Lot',
             width: '110px',
             render: (line) => (
-                <span className="font-mono text-[13px]">{line.lotCode}</span>
+                <span className="font-mono text-[13px]">{line.lot_number}</span>
             ),
         },
         {
             key: 'shelf',
             header: 'Rayon',
             width: '70px',
-            render: (line) => (
-                <span className="text-ink-muted">{line.shelf}</span>
-            ),
+            render: () => <span className="text-ink-faint">—</span>,
         },
         {
             key: 'system',
             header: 'Système',
             width: '110px',
             align: 'right',
-            render: (line) => formatNumber(line.systemUnits),
+            render: (line) => formatNumber(line.expected_units),
         },
         {
             key: 'counted',
@@ -119,9 +260,19 @@ export default function InventoryIndex() {
                             [line.id]: event.target.value,
                         }))
                     }
+                    onBlur={() => saveLine(line)}
+                    onKeyDown={(event) => {
+                        if (event.key === 'Enter') {
+                            event.currentTarget.blur();
+                        }
+                    }}
                     placeholder="—"
-                    aria-label={`Quantité comptée, ${line.medicine} lot ${line.lotCode}`}
-                    className="h-10 w-24 rounded-chip border-[1.5px] border-border-strong bg-surface px-2.5 text-right font-mono text-sm outline-none placeholder:text-ink-muted focus:border-primary"
+                    aria-label={`Quantité comptée, ${line.medicine} lot ${line.lot_number}`}
+                    aria-invalid={isInvalid(line) ? true : undefined}
+                    className={cn(
+                        'h-10 w-24 rounded-chip border-[1.5px] border-border-strong bg-surface px-2.5 text-right font-mono text-sm outline-none placeholder:text-ink-muted focus:border-primary',
+                        isInvalid(line) && 'border-danger focus:border-danger',
+                    )}
                 />
             ),
         },
@@ -167,24 +318,32 @@ export default function InventoryIndex() {
                     <span className="text-ink-muted">
                         {difference === null
                             ? ''
-                            : formatSignedFc(difference * line.unitCost)}
+                            : formatSignedFc(
+                                  Math.round(
+                                      difference * Number(line.unit_cost),
+                                  ),
+                              )}
                     </span>
                 );
             },
         },
     ];
 
+    const title = `Inventaire · ${new Intl.DateTimeFormat('fr-FR', {
+        month: 'long',
+        year: 'numeric',
+    }).format(new Date(count.started_at))}`;
+
     return (
         <>
             <PageHeader
-                title={inventorySession.title}
+                title={title}
                 subtitle={
                     <>
                         Ouvert le{' '}
                         <span className="font-mono">
-                            {inventorySession.openedAt}
-                        </span>{' '}
-                        · ventes bloquées sur les produits en cours de comptage
+                            {dateTime(count.started_at)}
+                        </span>
                     </>
                 }
                 actions={
@@ -207,16 +366,16 @@ export default function InventoryIndex() {
                                 Avancement
                             </span>
                             <span className="font-mono">
-                                {formatNumber(inventorySession.countedLots)} /{' '}
-                                {formatNumber(inventorySession.totalLots)} lots
+                                {formatNumber(countedLots)} /{' '}
+                                {formatNumber(lines.length)} lots
                             </span>
                         </div>
                         <div
                             role="progressbar"
                             aria-labelledby="inventory-progress-label"
                             aria-valuemin={0}
-                            aria-valuemax={inventorySession.totalLots}
-                            aria-valuenow={inventorySession.countedLots}
+                            aria-valuemax={lines.length}
+                            aria-valuenow={countedLots}
                             className="h-2.5 overflow-hidden rounded-full bg-divider"
                         >
                             <div
@@ -225,21 +384,21 @@ export default function InventoryIndex() {
                             />
                         </div>
                         <p className="text-[13px] text-ink-muted">
-                            {inventorySession.progressNote}
+                            {uncountedLots === 0
+                                ? 'Tous les lots sont comptés'
+                                : `${formatNumber(uncountedLots)} ${uncountedLots === 1 ? 'lot restant' : 'lots restants'} à compter`}
                         </p>
                     </div>
                     <StatTile
                         label="Lots avec écart"
-                        value={formatNumber(
-                            inventorySession.lotsWithDifference,
-                        )}
+                        value={formatNumber(linesWithDifference.length)}
                         isCompact
                         isLabelMuted
                         className="flex-[1_1_160px]"
                     />
                     <StatTile
                         label="Valeur des écarts"
-                        value={formatSignedFc(inventorySession.differenceValue)}
+                        value={formatSignedFc(differenceValue)}
                         tone="danger"
                         isCompact
                         className="flex-[1_1_160px]"
@@ -249,7 +408,7 @@ export default function InventoryIndex() {
                 <div className="flex flex-wrap items-center gap-2.5">
                     <SearchInput
                         label="Rechercher dans l'inventaire"
-                        placeholder="Médicament, lot ou rayon"
+                        placeholder="Médicament ou lot"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
                         className="flex-[1_1_260px]"
@@ -261,12 +420,12 @@ export default function InventoryIndex() {
                             {
                                 value: 'differences',
                                 label: 'Écarts seulement',
-                                count: inventorySession.lotsWithDifference,
+                                count: linesWithDifference.length,
                             },
                             {
                                 value: 'uncounted',
                                 label: 'Non comptés',
-                                count: inventorySession.uncountedLots,
+                                count: uncountedLots,
                             },
                         ]}
                         selected={filter}
@@ -278,10 +437,14 @@ export default function InventoryIndex() {
                     <DataTable
                         columns={columns}
                         rows={visibleLines}
-                        rowKey={(line) => line.id}
+                        rowKey={(line) => String(line.id)}
                         minWidth={860}
                         caption="Lots à compter"
-                        emptyMessage="Aucun lot ne correspond à ces filtres"
+                        emptyMessage={
+                            lines.length === 0
+                                ? 'Aucun lot en stock à compter'
+                                : 'Aucun lot ne correspond à ces filtres'
+                        }
                     />
                 </Card>
 
@@ -300,7 +463,8 @@ export default function InventoryIndex() {
                     <Button
                         size="large"
                         className="px-[22px]"
-                        onClick={() => showNotAvailableYet('Clôture')}
+                        disabled={isClosing}
+                        onClick={closeCount}
                     >
                         Clôturer l'inventaire
                     </Button>

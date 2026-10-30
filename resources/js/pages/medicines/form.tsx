@@ -1,24 +1,44 @@
-import { useId, useState } from 'react';
-import type { ReactNode } from 'react';
+import { useForm } from '@inertiajs/react';
+import { useId } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { Button, ButtonLink } from '@/components/backoffice/button';
 import { Card } from '@/components/backoffice/card';
 import { SelectField, TextField } from '@/components/backoffice/field';
 import { PageContent, PageHeader } from '@/components/backoffice/page-header';
 import { formatFc, formatNumber, formatUsd } from '@/lib/format';
-import { showNotAvailableYet } from '@/lib/not-available';
-import {
-    fcPerUsd,
-    findMedicine,
-    medicineCategories,
-    medicineForms,
-    stockUnits,
-} from '@/lib/mock/medicines';
-import type { Medicine } from '@/lib/mock/medicines';
-import { index } from '@/routes/medicines';
+import { medicineForms } from '@/lib/medicines';
+import type {
+    CategoryOption,
+    MedicineFormData,
+    MedicineLot,
+} from '@/lib/medicines';
+import { index, store, update } from '@/routes/medicines';
 
 type MedicineFormProps = {
-    /** Set when editing; absent for "Nouveau médicament". */
-    medicineId?: string;
+    /** Set when editing; null for "Nouveau médicament". */
+    medicine: MedicineFormData | null;
+    /** Sellable lots, first expired first. */
+    lots: MedicineLot[];
+    /** Cost of one box in the latest lot received, in FC, for the margin. */
+    latestCostPerPack: string | null;
+    categories: CategoryOption[];
+    /** 1 USD in CDF in force today, or null when no rate is recorded. */
+    exchangeRate: string | null;
+};
+
+type FormData = {
+    name: string;
+    dci: string;
+    dosage: string;
+    form: string;
+    barcode: string;
+    units_per_pack: string;
+    sale_price_pack: string;
+    sells_by_unit: boolean;
+    sale_price_unit: string;
+    min_stock_units: string;
+    prescription_required: boolean;
+    category_slugs: string[];
 };
 
 /** Digits only, so "2 500" and "2500" both read as 2500. */
@@ -28,64 +48,82 @@ function parseAmount(text: string): number | null {
     return /^\d+$/.test(digits) ? Number(digits) : null;
 }
 
-export default function MedicineForm({ medicineId }: MedicineFormProps) {
-    const medicine = medicineId ? findMedicine(medicineId) : undefined;
+export default function MedicineForm({
+    medicine,
+    lots,
+    latestCostPerPack,
+    categories,
+    exchangeRate,
+}: MedicineFormProps) {
+    const form = useForm<FormData>({
+        name: medicine?.name ?? '',
+        dci: medicine?.dci ?? '',
+        dosage: medicine?.dosage ?? '',
+        form: medicine?.form ?? '',
+        barcode: medicine?.barcode ?? '',
+        units_per_pack: String(medicine?.units_per_pack ?? 1),
+        sale_price_pack: medicine
+            ? formatNumber(Number(medicine.sale_price_pack))
+            : '',
+        sells_by_unit: medicine ? medicine.sale_price_unit !== null : true,
+        sale_price_unit:
+            medicine?.sale_price_unit != null
+                ? formatNumber(Number(medicine.sale_price_unit))
+                : '',
+        min_stock_units: String(medicine?.min_stock_units ?? 0),
+        prescription_required: medicine?.prescription_required ?? false,
+        category_slugs: medicine?.category_slugs ?? [],
+    });
+    const { data, setData, errors, processing } = form;
 
-    if (medicineId && !medicine) {
-        return (
-            <>
-                <PageHeader
-                    title="Médicament introuvable"
-                    back={{ label: 'Médicaments', href: index() }}
-                />
-                <PageContent>
-                    <Card>
-                        <p className="text-sm text-ink-muted">
-                            Ce médicament n'existe pas ou a été supprimé.
-                        </p>
-                    </Card>
-                </PageContent>
-            </>
-        );
-    }
-
-    return (
-        <MedicineFormContent key={medicineId ?? 'new'} medicine={medicine} />
-    );
-}
-
-function MedicineFormContent({ medicine }: { medicine?: Medicine }) {
-    const [boxPriceText, setBoxPriceText] = useState(
-        medicine ? formatNumber(medicine.boxPrice) : '',
-    );
-    const [sellsByUnit, setSellsByUnit] = useState(
-        medicine ? medicine.unitPrice !== null : true,
-    );
-    const [unitPriceText, setUnitPriceText] = useState(
-        medicine?.unitPrice ? formatNumber(medicine.unitPrice) : '',
-    );
-
-    const boxPrice = parseAmount(boxPriceText);
-    const latestLot = medicine?.lots.at(-1);
+    const boxPrice = parseAmount(data.sale_price_pack);
+    const latestCost =
+        latestCostPerPack !== null ? Number(latestCostPerPack) : null;
     const marginPercent =
-        boxPrice !== null && latestLot
-            ? Math.floor(
-                  ((boxPrice - latestLot.costPerBox) / latestLot.costPerBox) *
-                      100,
-              )
+        boxPrice !== null && latestCost !== null && latestCost > 0
+            ? Math.floor(((boxPrice - latestCost) / latestCost) * 100)
             : null;
+    const unitsPerPack = Math.max(1, parseAmount(data.units_per_pack) ?? 1);
 
-    const handleSellsByUnitChange = (isChecked: boolean) => {
-        setSellsByUnit(isChecked);
-        if (!isChecked) {
-            setUnitPriceText('');
-        }
+    // The select edits the main (first) category; any others are kept.
+    const [mainCategory = '', ...otherCategories] = data.category_slugs;
+    const otherCategoryNames = otherCategories
+        .map(
+            (slug) =>
+                categories.find((category) => category.slug === slug)?.name,
+        )
+        .filter(Boolean)
+        .join(', ');
+    const formOptions = [
+        ...(data.form !== '' &&
+        !medicineForms.includes(data.form as (typeof medicineForms)[number])
+            ? [data.form]
+            : []),
+        ...medicineForms,
+    ];
+
+    const handleMainCategoryChange = (slug: string) => {
+        const others = otherCategories.filter((other) => other !== slug);
+        setData('category_slugs', slug === '' ? others : [slug, ...others]);
     };
 
-    const handleSave = () => showNotAvailableYet('Enregistrement');
+    const handleSellsByUnitChange = (isChecked: boolean) => {
+        setData((current) => ({
+            ...current,
+            sells_by_unit: isChecked,
+            sale_price_unit: isChecked ? current.sale_price_unit : '',
+        }));
+    };
+
+    const handleSubmit = (event: FormEvent) => {
+        event.preventDefault();
+        form.submit(medicine ? update(medicine.id) : store(), {
+            preserveScroll: true,
+        });
+    };
 
     return (
-        <>
+        <form onSubmit={handleSubmit} noValidate>
             <PageHeader
                 title={medicine ? medicine.name : 'Nouveau médicament'}
                 back={{ label: 'Médicaments', href: index() }}
@@ -94,7 +132,11 @@ function MedicineFormContent({ medicine }: { medicine?: Medicine }) {
                         <ButtonLink href={index()} variant="secondary">
                             Annuler
                         </ButtonLink>
-                        <Button onClick={handleSave} className="px-[22px]">
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="px-[22px]"
+                        >
                             Enregistrer
                         </Button>
                     </>
@@ -107,47 +149,80 @@ function MedicineFormContent({ medicine }: { medicine?: Medicine }) {
                             <div className="grid grid-cols-[repeat(auto-fit,minmax(220px,1fr))] gap-x-4 gap-y-3.5">
                                 <TextField
                                     label="Nom commercial"
-                                    defaultValue={medicine?.name}
+                                    value={data.name}
+                                    onChange={(event) =>
+                                        setData('name', event.target.value)
+                                    }
+                                    error={errors.name}
                                 />
                                 <TextField
                                     label="Molécule (DCI)"
-                                    defaultValue={medicine?.molecule}
+                                    value={data.dci}
+                                    onChange={(event) =>
+                                        setData('dci', event.target.value)
+                                    }
+                                    error={errors.dci}
                                 />
                                 <SelectField
                                     label="Forme"
-                                    defaultValue={medicine?.form ?? 'Comprimé'}
-                                    options={medicineForms.map((form) => ({
-                                        value: form,
-                                        label: form,
-                                    }))}
+                                    value={data.form}
+                                    onChange={(event) =>
+                                        setData('form', event.target.value)
+                                    }
+                                    options={[
+                                        { value: '', label: '—' },
+                                        ...formOptions.map((option) => ({
+                                            value: option,
+                                            label: option,
+                                        })),
+                                    ]}
+                                    error={errors.form}
                                 />
                                 <TextField
                                     label="Dosage"
-                                    defaultValue={medicine?.dosage}
+                                    value={data.dosage}
+                                    onChange={(event) =>
+                                        setData('dosage', event.target.value)
+                                    }
+                                    error={errors.dosage}
                                 />
                                 <SelectField
                                     label="Catégorie"
-                                    defaultValue={
-                                        medicine?.category ??
-                                        medicineCategories[0]
+                                    value={mainCategory}
+                                    onChange={(event) =>
+                                        handleMainCategoryChange(
+                                            event.target.value,
+                                        )
                                     }
-                                    options={medicineCategories.map(
-                                        (category) => ({
-                                            value: category,
-                                            label: category,
-                                        }),
-                                    )}
+                                    options={[
+                                        { value: '', label: '—' },
+                                        ...categories.map((category) => ({
+                                            value: category.slug,
+                                            label: category.name,
+                                        })),
+                                    ]}
+                                    hint={
+                                        otherCategoryNames
+                                            ? `Aussi dans : ${otherCategoryNames}`
+                                            : undefined
+                                    }
+                                    error={errors.category_slugs}
                                 />
                                 <TextField
                                     label="Code-barres (facultatif)"
-                                    defaultValue={medicine?.barcode}
+                                    value={data.barcode}
+                                    onChange={(event) =>
+                                        setData('barcode', event.target.value)
+                                    }
+                                    error={errors.barcode}
                                     isMono
                                     inputMode="numeric"
                                 />
                             </div>
                             <Checkbox
-                                defaultChecked={
-                                    medicine?.isPrescriptionOnly ?? false
+                                checked={data.prescription_required}
+                                onChange={(isChecked) =>
+                                    setData('prescription_required', isChecked)
                                 }
                                 accentClassName="accent-rx"
                                 label="Sur ordonnance"
@@ -159,38 +234,60 @@ function MedicineFormContent({ medicine }: { medicine?: Medicine }) {
                             <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-x-4 gap-y-3.5">
                                 <TextField
                                     label="Unités par boîte"
-                                    defaultValue={medicine?.unitsPerBox}
+                                    value={data.units_per_pack}
+                                    onChange={(event) =>
+                                        setData(
+                                            'units_per_pack',
+                                            event.target.value,
+                                        )
+                                    }
+                                    error={errors.units_per_pack}
                                     isMono
                                     inputMode="numeric"
                                 />
                                 <TextField
                                     label="Prix de la boîte (FC)"
-                                    value={boxPriceText}
+                                    value={data.sale_price_pack}
                                     onChange={(event) =>
-                                        setBoxPriceText(event.target.value)
+                                        setData(
+                                            'sale_price_pack',
+                                            event.target.value,
+                                        )
                                     }
+                                    error={errors.sale_price_pack}
                                     isMono
                                     inputMode="numeric"
                                 />
                                 <TextField
                                     label="Prix à l'unité (FC)"
-                                    value={unitPriceText}
+                                    value={data.sale_price_unit}
                                     onChange={(event) =>
-                                        setUnitPriceText(event.target.value)
+                                        setData(
+                                            'sale_price_unit',
+                                            event.target.value,
+                                        )
                                     }
-                                    disabled={!sellsByUnit}
+                                    error={errors.sale_price_unit}
+                                    disabled={!data.sells_by_unit}
                                     isMono
                                     inputMode="numeric"
                                 />
                                 <TextField
                                     label="Seuil minimum (unités)"
-                                    defaultValue={medicine?.threshold}
+                                    value={data.min_stock_units}
+                                    onChange={(event) =>
+                                        setData(
+                                            'min_stock_units',
+                                            event.target.value,
+                                        )
+                                    }
+                                    error={errors.min_stock_units}
                                     isMono
                                     inputMode="numeric"
                                 />
                             </div>
                             <Checkbox
-                                checked={sellsByUnit}
+                                checked={data.sells_by_unit}
                                 onChange={handleSellsByUnitChange}
                                 accentClassName="accent-primary"
                                 label="Vendre aussi à l'unité (plaquette ouverte)"
@@ -199,8 +296,11 @@ function MedicineFormContent({ medicine }: { medicine?: Medicine }) {
                                 <span>
                                     ≈{' '}
                                     <span className="font-mono text-ink">
-                                        {boxPrice !== null
-                                            ? formatUsd(boxPrice / fcPerUsd)
+                                        {boxPrice !== null && exchangeRate
+                                            ? formatUsd(
+                                                  boxPrice /
+                                                      Number(exchangeRate),
+                                              )
                                             : '—'}
                                     </span>{' '}
                                     la boîte au taux du jour
@@ -217,10 +317,10 @@ function MedicineFormContent({ medicine }: { medicine?: Medicine }) {
                         </Card>
                     </div>
 
-                    <LotsCard medicine={medicine} />
+                    <LotsCard lots={lots} unitsPerPack={unitsPerPack} />
                 </div>
             </PageContent>
-        </>
+        </form>
     );
 }
 
@@ -229,9 +329,8 @@ type CheckboxProps = {
     description?: string;
     /** Tick colour: rx blue for prescriptions, primary otherwise. */
     accentClassName: string;
-    checked?: boolean;
-    defaultChecked?: boolean;
-    onChange?: (isChecked: boolean) => void;
+    checked: boolean;
+    onChange: (isChecked: boolean) => void;
 };
 
 function Checkbox({
@@ -239,7 +338,6 @@ function Checkbox({
     description,
     accentClassName,
     checked,
-    defaultChecked,
     onChange,
 }: CheckboxProps) {
     const id = useId();
@@ -250,8 +348,7 @@ function Checkbox({
                 id={id}
                 type="checkbox"
                 checked={checked}
-                defaultChecked={defaultChecked}
-                onChange={(event) => onChange?.(event.target.checked)}
+                onChange={(event) => onChange(event.target.checked)}
                 aria-describedby={description ? `${id}-description` : undefined}
                 className={`size-[22px] shrink-0 ${accentClassName}`}
             />
@@ -270,9 +367,15 @@ function Checkbox({
     );
 }
 
-function LotsCard({ medicine }: { medicine?: Medicine }) {
-    const unitSuffix = medicine?.itemLabel ?? 'u';
-    const lots = medicine?.lots ?? [];
+function LotsCard({
+    lots,
+    unitsPerPack,
+}: {
+    lots: MedicineLot[];
+    unitsPerPack: number;
+}) {
+    const totalUnits = lots.reduce((sum, lot) => sum + lot.qty_on_hand, 0);
+    const unitSuffix = 'u';
 
     return (
         <Card
@@ -281,8 +384,7 @@ function LotsCard({ medicine }: { medicine?: Medicine }) {
             className="flex-[1_1_300px]"
             actions={
                 <span className="font-mono font-semibold">
-                    {formatNumber(medicine ? stockUnits(medicine) : 0)}{' '}
-                    {unitSuffix}
+                    {formatNumber(totalUnits)} {unitSuffix}
                 </span>
             }
         >
@@ -297,18 +399,22 @@ function LotsCard({ medicine }: { medicine?: Medicine }) {
                 <ol className="flex flex-col gap-3.5">
                     {lots.map((lot) => (
                         <li
-                            key={lot.code}
+                            key={lot.id}
                             className="flex flex-col gap-1 rounded-control border border-border px-3.5 py-3"
                         >
                             <LotLine
                                 left={
                                     <span className="font-mono font-semibold">
-                                        {lot.code}
+                                        {lot.lot_number}
                                     </span>
                                 }
                                 right={
                                     <span className="font-mono">
-                                        {formatNumber(lot.units)} {unitSuffix}
+                                        {formatNumber(lot.qty_on_hand)}{' '}
+                                        {unitSuffix}
+                                        {unitsPerPack > 1
+                                            ? ` · ${formatNumber(Math.floor(lot.qty_on_hand / unitsPerPack))} bt`
+                                            : ''}
                                     </span>
                                 }
                             />
@@ -325,7 +431,9 @@ function LotsCard({ medicine }: { medicine?: Medicine }) {
                                     <>
                                         Achat{' '}
                                         <span className="font-mono">
-                                            {formatFc(lot.costPerBox)}
+                                            {formatFc(
+                                                Number(lot.cost_per_pack),
+                                            )}
                                         </span>
                                         /bt
                                     </>

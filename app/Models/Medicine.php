@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -26,8 +27,8 @@ use Illuminate\Support\Carbon;
  * @property string|null $barcode
  * @property string|null $image_path
  * @property int $units_per_pack
- * @property string $sale_price_pack
- * @property string|null $sale_price_unit
+ * @property numeric-string $sale_price_pack
+ * @property numeric-string|null $sale_price_unit
  * @property int $min_stock_units
  * @property bool $prescription_required
  * @property bool $is_active
@@ -64,6 +65,14 @@ class Medicine extends Model
             'is_active' => 'boolean',
             'sellable_units' => 'integer',
         ];
+    }
+
+    /**
+     * @return HasMany<Batch, $this>
+     */
+    public function batches(): HasMany
+    {
+        return $this->hasMany(Batch::class);
     }
 
     /**

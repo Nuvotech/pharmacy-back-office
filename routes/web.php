@@ -1,25 +1,42 @@
 <?php
 
+use App\Http\Controllers\BackOffice\DashboardController;
+use App\Http\Controllers\BackOffice\InventoryController;
 use App\Http\Controllers\BackOffice\MedicineController;
+use App\Http\Controllers\BackOffice\ReceptionController;
+use App\Http\Controllers\BackOffice\StockImportController;
 use App\Http\Controllers\BackOffice\UserController;
+use App\Models\InventoryCount;
+use App\Models\Medicine;
+use App\Models\Reception;
+use App\Models\StockImport;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 Route::redirect('/', '/dashboard')->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::inertia('dashboard', 'dashboard')->name('dashboard');
+    Route::get('dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('medicines', [MedicineController::class, 'index'])->name('medicines.index');
+    Route::get('medicines/create', [MedicineController::class, 'create'])->can('create', Medicine::class)->name('medicines.create');
+    Route::post('medicines', [MedicineController::class, 'store'])->can('create', Medicine::class)->name('medicines.store');
+    Route::get('medicines/{medicine}/edit', [MedicineController::class, 'edit'])->can('update', 'medicine')->name('medicines.edit');
+    Route::patch('medicines/{medicine}', [MedicineController::class, 'update'])->can('update', 'medicine')->name('medicines.update');
 
     // UI only for now: the pages show sample data until the API exists.
-    Route::get('medicines', [MedicineController::class, 'index'])->name('medicines.index');
-    Route::inertia('medicines/create', 'medicines/form')->name('medicines.create');
-    Route::get('medicines/{medicine}/edit', fn (string $medicine) => Inertia::render('medicines/form', [
-        'medicineId' => $medicine,
-    ]))->name('medicines.edit');
-    Route::inertia('stock-import', 'stock-import/create')->name('stock-import.create');
-    Route::inertia('receptions/create', 'receptions/create')->name('receptions.create');
-    Route::inertia('inventory', 'inventory/index')->name('inventory.index');
+    Route::get('stock-import', [StockImportController::class, 'create'])->can('create', StockImport::class)->name('stock-import.create');
+    Route::post('stock-import', [StockImportController::class, 'store'])->can('create', StockImport::class)->name('stock-import.store');
+    Route::get('stock-import/template', [StockImportController::class, 'template'])->can('create', StockImport::class)->name('stock-import.template');
+    Route::get('stock-import/{stockImport}/errors', [StockImportController::class, 'errors'])->can('view', 'stockImport')->name('stock-import.errors');
+    Route::post('stock-import/{stockImport}/run', [StockImportController::class, 'run'])->can('view', 'stockImport')->name('stock-import.run');
+    Route::get('receptions/create', [ReceptionController::class, 'create'])->can('create', Reception::class)->name('receptions.create');
+    Route::post('receptions/draft', [ReceptionController::class, 'saveDraft'])->can('create', Reception::class)->name('receptions.draft');
+    Route::post('receptions/validate', [ReceptionController::class, 'validateReception'])->can('create', Reception::class)->name('receptions.validate');
+    Route::get('inventory', [InventoryController::class, 'index'])->can('viewAny', InventoryCount::class)->name('inventory.index');
+    Route::post('inventory', [InventoryController::class, 'store'])->can('create', InventoryCount::class)->name('inventory.store');
+    Route::patch('inventory/lines/{line}', [InventoryController::class, 'updateLine'])->can('create', InventoryCount::class)->name('inventory.lines.update');
+    Route::post('inventory/{count}/close', [InventoryController::class, 'close'])->can('update', 'count')->name('inventory.close');
     Route::inertia('returns', 'returns/index')->name('returns.index');
     Route::inertia('adjustments', 'adjustments/index')->name('adjustments.index');
     Route::inertia('reports/sales', 'reports/sales')->name('reports.sales');

@@ -9,8 +9,7 @@ change.
 
 ## Current Goal
 
-- Feature spec 02 — Medicines (`context/feature-specs/02-medicament.md`): seeded catalogue with categories
-  and pictures, shown in the Médicaments list.
+- Units 01–10 complete; next feature spec to be chosen.
 
 ## Completed
 
@@ -45,10 +44,7 @@ change.
   new list is signed out. Offline sign-in needs a development build (Expo Go lacks the SQLite module).
   - pharm-app dependencies aligned with Expo SDK 58 (`react-dom` pinned to 19.3.0, `npx expo install --fix`);
     a plain `npm install` works and `expo-doctor` passes.
-
-## In Progress
-
-- 04 Medicines (spec `02-medicament.md`) — code done, local database seeded; not yet checked in the browser.
+- 04 Medicines (spec `02-medicament.md`).
   - Seeded from the PHARMAPLUS list (`database/seeders/data/medicines_pharmaplus.csv`, 1,745 names; moved
     there from the repo-root `data/` folder, where the seeder couldn't find it), not from the mock data.
   - Migration `create_categories_and_add_image_to_medicines`: `categories` table + `category_medicine` pivot
@@ -62,43 +58,160 @@ change.
   - Médicaments list (`MedicineController@index`, `MedicineListResource`): search, category, status chips
     and page in the query string, 25 per page; stock and status computed on the server
     (`Medicine::withSellableUnits`, `App\Enums\StockStatus`, expired lots excluded). A 36 px picture beside
-    the name is an addition to the design. Pest: `MedicineListTest`, `MedicineSeederTest`. 112/112.
+    the name is an addition to the design. Pest: `MedicineListTest`, `MedicineSeederTest`.
   - Not committed: the server folder is not a git repository and you chose not to create one.
-- 05 Catalogue download to the tablet — code done; live pull against the local server checked (4 pages,
-  1,745 medicines, 38 with a picture); not yet run on the tablet.
+- 05 Catalogue download to the tablet.
   - Server: `GET /api/v1/sync/catalogue?cursor=` (`App\Domain\Sync\PullCatalogue`, `SyncController`,
-    `SyncMedicineResource`, `abilities:counter`). Pest: `tests/Feature/Api/V1/SyncCatalogueTest.php`. 119/119.
+    `SyncMedicineResource`, `abilities:counter`). Pest: `tests/Feature/Api/V1/SyncCatalogueTest.php`.
   - pharm-app: `@react-native-community/netinfo` 12.0.1 (in Expo Go). `src/api/connectivity.ts` wires NetInfo
     and app focus into TanStack Query; `src/api/catalogue.ts`, `src/data/catalogueSync.ts` (page loop, restarts
     on `INVALID_CURSOR`), `src/data/catalogue.ts` (server medicine → counter `Product`), SQLite migration 2 +
     `src/db/catalogue.ts` (memory fallback without SQLite), `src/store/catalogue.tsx` (`CatalogueProvider`,
     `useCatalogue`, `findProduct` reads it). The counter grid and categories use the downloaded catalogue;
-    bundled pictures are used by file name, other photos load from the server. The tablet Réception
-    screen stays on sample products (`findProduct` in `src/data/reception.ts`). Jest 106/106, `tsc`, lint,
-    Android bundle.
+    bundled pictures are used by file name, other photos load from the server.
   - Only an online sign-in (with a token) downloads; an offline session shows what is already stored.
-  - Offline sign-in in Expo Go (no SQLite module): the downloaded accounts now fall back to the device
-    keystore (`expo-secure-store`) in `src/db/accounts.ts`, so offline sign-in works there too. The
-    catalogue still falls back to memory only in Expo Go, so it is downloaded again after a restart.
+  - Offline sign-in in Expo Go (no SQLite module): the downloaded accounts fall back to the device keystore
+    (`expo-secure-store`) in `src/db/accounts.ts`. The catalogue falls back to memory only in Expo Go, so it
+    is downloaded again after a restart.
   - The Vente status line shows the real connection ("En ligne" / "Hors ligne", from NetInfo through
     `useIsOnline` in `src/api/connectivity.ts`) and, only when there are some, the sales made this session
-    ("· N en attente"; sales aren't pushed yet). The mock `syncStatus` (offline, 12 waiting) is removed.
-    While online its dot is green (`colors.onlineDot`, new token) with a ping like Tailwind's `animate-ping`
-    (`StatusPill`, inline variant only).
-  - Stock is not pulled yet (lots, through the stock ledger and sync pull), so every downloaded medicine
-    shows "Rupture" at the counter and can't be sold.
+    ("· N en attente"; sales aren't pushed yet). While online its dot is green (`colors.onlineDot`) with a
+    ping like Tailwind's `animate-ping` (`StatusPill`, inline variant only).
+- 06 Receptions (spec `03-Receptions.md`). Not committed: neither folder is a git repository.
+  - Stock ledger (high-risk, tests first): `App\Domain\Stock\RecordStockMovement` is the only code that
+    changes `batches.qty_on_hand`; it locks the lot, appends a `stock_movements` row and increments the
+    quantity in one transaction, and refuses a zero movement. `App\Enums\MovementType` mirrors the column.
+    Pest: `tests/Feature/Stock/RecordStockMovementTest.php`.
+  - Migrations `add_draft_fields_and_lines_to_receptions` (`receptions.status` draft | validated,
+    `currency` USD | CDF, `exchange_rate`, `validated_at`; new `reception_lines`) and
+    `add_units_per_pack_to_reception_lines`.
+  - Models `Supplier`, `Reception`, `ReceptionLine`, `Batch`, `StockMovement`, `ExchangeRate`; enums
+    `ReceptionStatus`, `InvoiceCurrency`; `ReceptionPolicy` (admin and pharmacist).
+  - `App\Domain\Receptions\SaveReceptionDraft` (creates no lot; lines replaced on each save) and
+    `ValidateReception` (one lot + one `reception` movement per line; purchase price per unit stored in CDF
+    = cost per pack × rate ÷ units per pack; USD needs the rate in force on the reception date; lots
+    expiring under 6 months need `short_dated_confirmed`; validating an already validated reception
+    returns it unchanged; a box size different from the medicine sheet is saved on the medicine).
+    `ShortDated` holds the 6-month rule. French messages in `lang/fr/receptions.php`.
+  - Back office `receptions/create` (`BackOffice\ReceptionController`: reopens the user's latest draft;
+    `POST receptions/draft`, `POST receptions/validate`). Same layout as the design; the entry row has a
+    "Unités / bte" box prefilled from the medicine, an "Ajouter" button, Enter moves to the next empty box;
+    a filled entry row counts on save/validate; Enter in a header field never validates. Added to the
+    design: a "Je confirme ces lots" checkbox, a line-error list under the table.
+  - Receptions are web back office only (your decision, 30/10/2026): the tablet Réception screen was
+    removed and there is no device API for them; the tablet back office opens on Stock.
+  - Seeders: `SupplierSeeder` (placeholders `[GROSSISTE A]`, `[GROSSISTE B]`); `DatabaseSeeder` adds a
+    local USD rate of 2 800 for today. Pest: `BackOffice/ReceptionTest.php`.
+- 07 Stock download to the tablet.
+  - Server: `GET /api/v1/sync/stock?cursor=` (`App\Domain\Sync\PullStock`, `SyncBatchResource`,
+    `PullStockRequest`, `abilities:counter`); the cursor code moved from `PullCatalogue` to `SyncCursor`
+    (shared, unchanged behaviour). Pest: `tests/Feature/Api/V1/SyncStockTest.php`.
+  - pharm-app: `src/api/stock.ts`, SQLite migration 3 (`batches`) + `src/db/stock.ts` (memory fallback in
+    Expo Go), `src/store/stock.tsx` (`StockProvider`: pull every 60 s and on sign-in, reconnect, foreground;
+    `getLots`/`setLots`/`useLotsVersion`), `src/data/stockLots.ts` (`toLot`). `data/catalogueSync.ts` has a
+    shared `syncPages`. The counter sells from the downloaded lots; `Lot` has the server `id` and FEFO keys
+    lots by id (two deliveries can share a lot number).
+  - Sales are still not pushed: a sale lowers the lot on the tablet and the units sold are remembered in
+    memory per lot, so a download doesn't bring them back; after an app restart they are forgotten (as are
+    the sales themselves). The opened pack is saved on the tablet.
+  - Local testing through ngrok needs `ngrok http pharmacy.test:80 --host-header=rewrite`; without it Herd
+    answers 404 to every tablet request.
+- 08 Medicine form from the database.
+  - "Modifier" and "Nouveau médicament" load and save real medicines (`MedicineController@create/store/
+    edit/update`, `SaveMedicineRequest`, `App\Domain\Catalogue\SaveMedicine`, `MedicinePolicy`: admin and
+    pharmacist; French messages in `lang/fr/medicines.php`). Same layout as the design. Prices are whole FC;
+    unchecking "Vendre aussi à l'unité" clears the unit price. Saving always touches the medicine, so
+    tablets get the change on their next catalogue pull.
+  - The "Catégorie" select edits the main category; other categories are kept and listed under it ("Aussi
+    dans : …"). "Forme" and "Catégorie" allow "—" (seeded medicines have neither).
+  - "Lots en stock" lists the real sellable lots in FEFO order with their cost per box; the margin uses the
+    latest lot received; "≈ USD" uses the rate in force today ("—" without one).
+  - Pest: `BackOffice/MedicineFormTest.php`; `BackofficeRoutesTest` opens a real medicine. Server 146/146;
+    pharm-app jest 107/107.
+- 09 Sales sync and dashboard (spec `04-dashboard.md`). Not committed: neither folder is a git repository.
+  - Server (high-risk, tests first): `POST /api/v1/sync/push` (`SyncController@push`, `PushSyncRequest`: at
+    most 200 events, `abilities:counter`). `App\Domain\Sync\IngestSyncBatch` applies each event in its own
+    transaction and logs it in `sync_events`; an event id seen before is `duplicate`, a bad one `failed`
+    (logged, the others still apply), an unexpected error `server_error` (not logged, resent).
+    `App\Domain\Sales\RecordSale` writes `sales` + one `sale_items` row per lot and takes the units through
+    the ledger (`sale` movement); a shortfall moves to the next FEFO lot (`sync_reallocation` movement), and
+    what no lot covers becomes a `stock_discrepancies` row. The answer returns the changed lots' quantities.
+    Migration `add_prescription_to_sales` (prescriber, patient name). Models `Device`, `Sale`, `SaleItem`,
+    `SyncEvent`, `StockDiscrepancy`; `Medicine::batches()`.
+  - Devices: no registration yet, so `App\Domain\Sync\ResolveDevice` uses the token name the app signs in
+    with ("Caisse 1") and creates the device on first sync; stock pulls and pushes update `last_sync_at` and
+    `last_user_id` (migration `add_last_user_to_devices`). The dashboard's "Appareils" shows each device's
+    name with the cashier signed in and its status, e.g. "Caisse 1 — Grâce M. · En ligne". A device is
+    online if it synced in the last 2 minutes; the dashboard refreshes its figures every 30 s (`usePoll`,
+    `only: ['summary']`), so a tablet going offline shows within about 2½ minutes.
+  - pharm-app: `expo-crypto` installed (your approval) for sale and event UUIDs. SQLite migration 4 (`sales`
+    with the sale as JSON + `synced_at`, `outbox`), `src/db/sales.ts` (sale + outbox + receipt counter in one
+    transaction; memory fallback in Expo Go, receipt counter in the keystore there), `src/api/sync.ts`,
+    `src/data/salesSync.ts` (`toSaleEvent`, `pushPendingSales` in batches of 200),
+    `src/store/salesSync.tsx` (`SalesSyncProvider`: push every 30 s, after each sale, on reconnect and
+    foreground; pending count). Sold units are subtracted from downloaded lots until the server has the
+    sale (from the stored unsynced sales, so it survives a restart); the server's lot quantities replace
+    them after a push. Today's sales and the receipt counter are read back from the tablet at start.
+    Jest 117/117, `tsc`, lint, Android bundle.
+  - Dashboard (`DashboardController`, `App\Domain\Reports\DashboardSummary`): today's sales and tickets,
+    stock value at purchase price (non-expired lots), counts of out of stock (every active medicine at 0,
+    your choice), low, expiring within 90 days and expired lots, up to 10 alerts per kind (medicines that
+    had stock first), last 3 validated receptions, devices (online if synced in the last 2 min) plus
+    "Ce navigateur", today's rate, the user's role. Ruptures/Stock bas tiles open the filtered list.
+    Pest: `Api/V1/SyncPushTest.php`, `BackOffice/DashboardTest.php`. Server 157/157.
+- 10 Inventory (spec `05-Inventaire.md`). Not committed: the server folder is not a git repository.
+  - `InventoryCount`, `InventoryCountLine` models (existing tables); `InventoryCountPolicy` (admin and
+    pharmacist); French messages in `lang/fr/inventory.php`.
+  - `App\Domain\Inventory\StartInventoryCount` (one open count at a time; one line per lot with stock, with
+    the units expected at that moment), `RecordCountedUnits` (open count only; blank = "à compter"),
+    `CloseInventoryCount` (each counted lot with a difference gets an `inventory_correction` movement of
+    counted − expected through the stock ledger, signed by the user, reason "Inventaire du JJ/MM/AAAA";
+    uncounted lots keep their quantity).
+  - `InventoryController`: `GET inventory`, `POST inventory` (start), `PATCH inventory/lines/{line}` (saved
+    when leaving the box or on Enter), `POST inventory/{count}/close` (after a confirmation).
+  - Page `inventory/index` on real data, same layout as the design: title from the month the count opened,
+    progress, lots with a difference, value of the differences at purchase price, search, filters, table.
+    Without an open count it shows "Démarrer l'inventaire" (not in the design). Changed from the design:
+    the subtitle no longer says sales are blocked (they aren't), the progress note says how many lots are
+    left (there are no shelves), the "Rayon" column shows "—", the search is by medicine or lot. Mock
+    `lib/mock/inventory.ts` removed. Pest: `BackOffice/InventoryTest.php`. Server 164/164.
+
+## In Progress
+
+- 11 Stock import (spec `06-import-du-stock.md`) — started: the full opening-stock import flow in the
+  back office.
 
 ## Next Up
 
-- Check the Médicaments list in the browser, then move 04 to Completed.
-- Medicine form ("Modifier", "Nouveau médicament") loading and saving from the database.
+- Next feature spec to be chosen (see Open Questions for gaps found so far).
 
 ## Open Questions
 
-- The medicine form ("Modifier", "Nouveau médicament") still shows mock data: opening a seeded medicine
-  says "Médicament introuvable". Next unit: load and save the form from the database.
-- PHARMAPLUS medicines have only a name: price 0, 1 unit per pack, minimum 0, no category, no stock, so the
-  whole list shows "Rupture" until prices are entered and the opening stock is imported.
+- Inventory: lots have no shelf ("Rayon"), so the column is empty and the count can't be followed by shelf.
+  Add a shelf to medicines or lots? Sales are not blocked during a count: the spec overview says counts run
+  after closing; corrections are counted − expected at the start. "Imprimer la feuille de comptage" is not
+  built yet.
+
+- Shop time zone: the server runs in UTC (`app.timezone`), so "Ventes du jour" counts sales from 00:00 UTC
+  (01:00 in Kinshasa, 02:00 in Lubumbashi). Which time zone is the pharmacy in?
+- The tablet still uses the sample rate (2 800 FC, `exchangeRate` in `src/data/mock.ts`) at the counter;
+  the server's rate isn't pulled yet.
+- Sales refused by the server (e.g. a receipt number already used) stay on the tablet marked failed; there is
+  no screen to see them yet. Stock discrepancies have no screen either.
+
+- Receptions: no screen exists to enter the day's USD → FC rate, so a USD invoice can't be validated until a
+  rate is in `exchange_rates` (`DatabaseSeeder` adds 2 800 for local testing). Needs a design.
+- Receptions: the overview lists a sale price per reception line; neither design has one, so prices stay
+  on the medicine sheet. Confirm.
+- Receptions: suppliers can't be managed yet (only the two seeded placeholders); the real supplier list is
+  a client deliverable. A supplier screen needs a design.
+- Lot history page (Phase 1 item 4) and a list of past receptions: no design yet.
+- `batches.expiry_date` is the last day of the expiry month, and `Medicine::withSellableUnits` keeps lots
+  with `expiry_date > today`, so the server stops counting a lot on its last day while the tablet sells it
+  until the end of that day. Align the rule.
+
+- PHARMAPLUS medicines have only a name: price 0, 1 unit per pack, minimum 0, no category, no stock. Prices
+  and box sizes can now be set in the medicine form (08) and at reception (06).
 - Picture matches to confirm: Artésunate (the list has only 60 mg / 120 mg, likely injections, while the
   picture is a tablet box) and Fer + Acide folique (matched to FERCEFOL / FEFOL).
 
@@ -129,6 +242,8 @@ change.
   and its tests): the custom users table has no `email_verified_at`, and accounts are created by the admin.
 - The reporting-views migration (`2026_10_10_000008`) skips itself on SQLite: its SQL is MySQL-only, and the
   test suite runs on in-memory SQLite. The views are therefore not covered by tests.
+- Receptions happen only in the web back office (30/10/2026); the box size typed at reception updates the
+  medicine sheet on validation.
 
 ## Session Notes
 

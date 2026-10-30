@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Medicine;
 use App\Models\User;
 use Inertia\Testing\AssertableInertia as Assert;
 
@@ -16,7 +17,7 @@ dataset('back-office screens', [
 dataset('medicine screens', [
     'medicine list' => [fn () => route('medicines.index')],
     'new medicine' => [fn () => route('medicines.create')],
-    'edit medicine' => [fn () => route('medicines.edit', 'amoxicilline-500')],
+    'edit medicine' => [fn () => route('medicines.edit', Medicine::factory()->create())],
 ]);
 
 test('guests are redirected to the login page', function (string $routeName) {
@@ -54,17 +55,18 @@ test('the new medicine form opens without a medicine', function () {
 
     $response->assertInertia(fn (Assert $page) => $page
         ->component('medicines/form')
-        ->missing('medicineId')
+        ->where('medicine', null)
     );
 });
 
 test('the edit form receives the medicine from the URL', function () {
     $this->actingAs(User::factory()->create());
+    $medicine = Medicine::factory()->create();
 
-    $response = $this->get(route('medicines.edit', 'amoxicilline-500'));
+    $response = $this->get(route('medicines.edit', $medicine));
 
     $response->assertInertia(fn (Assert $page) => $page
         ->component('medicines/form')
-        ->where('medicineId', 'amoxicilline-500')
+        ->where('medicine.id', $medicine->id)
     );
 });
