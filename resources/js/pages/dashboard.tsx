@@ -207,20 +207,24 @@ export default function Dashboard({
                 }
             />
             <PageContent>
-                <div className="grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-6">
+                {/* All 6 KPIs in one line from 1280 px; 3 + 3 on smaller laptops, 2 × 3 on tablets. */}
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xl:gap-4 2xl:gap-6">
                     <StatTile
+                        isDense
                         label="Ventes du jour"
                         value={formatNumber(Number(summary.sales_today.total))}
                         sub={`FC · ${formatNumber(summary.sales_today.tickets)} ${summary.sales_today.tickets === 1 ? 'ticket' : 'tickets'}`}
                         href={sales()}
                     />
                     <StatTile
+                        isDense
                         label="Valeur du stock"
                         value={formatCompactAmount(Number(summary.stock_value))}
                         sub="FC · prix d'achat"
                         href={medicines()}
                     />
                     <StatTile
+                        isDense
                         label="Ruptures"
                         value={formatNumber(counts.out)}
                         sub="médicaments à 0"
@@ -228,6 +232,7 @@ export default function Dashboard({
                         href={medicines({ query: { filter: 'out' } })}
                     />
                     <StatTile
+                        isDense
                         label="Stock bas"
                         value={formatNumber(counts.low)}
                         sub="sous le seuil"
@@ -235,6 +240,7 @@ export default function Dashboard({
                         href={medicines({ query: { filter: 'low' } })}
                     />
                     <StatTile
+                        isDense
                         label="Expire < 90 jours"
                         value={formatNumber(counts.expiring)}
                         sub={counts.expiring === 1 ? 'lot' : 'lots'}
@@ -242,6 +248,7 @@ export default function Dashboard({
                         href={adjustments()}
                     />
                     <StatTile
+                        isDense
                         label="Expirés"
                         value={formatNumber(counts.expired)}
                         sub={

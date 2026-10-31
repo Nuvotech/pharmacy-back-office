@@ -33,6 +33,13 @@ export const buttonVariants = cva(
     },
 );
 
+/**
+ * Icon button (design.md 6.7): 36 × 36, transparent, 20 px icon in slate-500; slate-100 on hover. Give it
+ * an aria-label (and a title for the tooltip).
+ */
+export const iconButtonClasses =
+    'inline-flex size-9 shrink-0 items-center justify-center rounded text-ink-faint transition-colors hover:bg-background hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus';
+
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> &
     VariantProps<typeof buttonVariants>;
 

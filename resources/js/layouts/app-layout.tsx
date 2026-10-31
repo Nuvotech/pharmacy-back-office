@@ -3,19 +3,18 @@ import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { BackofficeSidebar } from '@/components/backoffice/backoffice-sidebar';
-import { useInitials } from '@/hooks/use-initials';
-import { pharmacyName } from '@/lib/pharmacy';
-import { roleLabels } from '@/lib/users';
+import { UserMenu } from '@/components/backoffice/user-menu';
+import { usePharmacyName } from '@/lib/pharmacy';
 import type { Auth } from '@/types';
 
 /**
  * Back-office shell (design.md 4.2): a fixed 256 px slate sidebar, then a white 70 px top bar with the
- * signed-in user, then the page (its own header band and content) on the slate-100 canvas. Under 1024 px
+ * user menu (Profil, Se déconnecter), then the page (its own header band and content) on the slate-100 canvas. Under 1024 px
  * the sidebar becomes a drawer opened from the top bar.
  */
 export default function AppLayout({ children }: { children: ReactNode }) {
     const { auth } = usePage<{ auth: Auth }>().props;
-    const getInitials = useInitials();
+    const pharmacyName = usePharmacyName();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     return (
@@ -55,21 +54,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                     <span className="truncate text-sm font-medium text-ink lg:hidden">
                         {pharmacyName}
                     </span>
-                    <div className="ml-auto flex items-center gap-3">
-                        <div className="hidden text-right sm:block">
-                            <div className="text-sm font-medium text-ink">
-                                {auth.user.name}
-                            </div>
-                            <div className="text-xs text-ink-faint">
-                                {roleLabels[auth.user.role]}
-                            </div>
-                        </div>
-                        <div
-                            className="flex size-10 items-center justify-center rounded-full bg-primary-soft text-sm font-semibold text-on-primary-soft"
-                            aria-hidden
-                        >
-                            {getInitials(auth.user.name)}
-                        </div>
+                    <div className="ml-auto">
+                        <UserMenu user={auth.user} />
                     </div>
                 </header>
                 <main className="flex min-w-0 flex-1 flex-col">{children}</main>

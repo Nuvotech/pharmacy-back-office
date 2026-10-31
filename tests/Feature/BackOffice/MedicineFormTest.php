@@ -72,7 +72,7 @@ test('saving the form updates the medicine and touches it for the tablets', func
 
     $this->actingAs(catalogueManager())
         ->patch(route('medicines.update', $medicine), medicinePayload(['category_slugs' => ['douleur', 'enfants']]))
-        ->assertRedirect(route('medicines.edit', $medicine))
+        ->assertRedirect(route('medicines.index'))
         ->assertSessionHasNoErrors();
 
     $medicine->refresh();

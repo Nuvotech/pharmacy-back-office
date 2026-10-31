@@ -6,7 +6,7 @@ import { LoginIllustration } from '@/components/login-illustration';
 import PasskeyVerify from '@/components/passkey-verify';
 import PasswordInput from '@/components/password-input';
 import { Spinner } from '@/components/ui/spinner';
-import { pharmacyName } from '@/lib/pharmacy';
+import { usePharmacyName } from '@/lib/pharmacy';
 import { store } from '@/routes/login';
 import { request } from '@/routes/password';
 
@@ -26,6 +26,8 @@ const circleSize = 'clamp(900px, 112vh, 1500px)';
 
 /** Back-office login, styled like the tablet login (design/tablet/tablet/screens/Tablet-Login.png). */
 export default function Login({ status, canResetPassword }: Props) {
+    const pharmacyName = usePharmacyName();
+
     return (
         <div className="min-h-svh overflow-hidden bg-white text-login-ink">
             <Head title="Connexion" />

@@ -7,12 +7,9 @@ import {
     FileSpreadsheet,
     LayoutDashboard,
     LineChart,
-    LogOut,
     PackagePlus,
     Pill,
     Plus,
-    RefreshCw,
-    Settings,
     SlidersHorizontal,
     Undo2,
     Users,
@@ -20,11 +17,10 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { useCurrentUrl } from '@/hooks/use-current-url';
 import { cn } from '@/lib/utils';
-import { dashboard, logout } from '@/routes';
+import { dashboard } from '@/routes';
 import { index as adjustments } from '@/routes/adjustments';
 import { index as inventory } from '@/routes/inventory';
 import { index as medicines } from '@/routes/medicines';
-import { edit as settings } from '@/routes/profile';
 import { create as newReception } from '@/routes/receptions';
 import { consumption, sales } from '@/routes/reports';
 import { index as returns } from '@/routes/returns';
@@ -95,14 +91,9 @@ const groups: SidebarGroup[] = [
         ],
     },
     {
+        // Profile and sign-out are in the top bar's user menu.
         label: 'Système',
         items: [
-            {
-                label: 'Paramètres',
-                icon: Settings,
-                href: settings(),
-                activePrefix: '/settings',
-            },
             {
                 label: 'Utilisateurs',
                 icon: Users,
@@ -110,7 +101,6 @@ const groups: SidebarGroup[] = [
                 activePrefix: '/users',
                 isAdminOnly: true,
             },
-            { label: 'Synchronisation', icon: RefreshCw },
         ],
     },
 ];
@@ -171,91 +161,85 @@ export function BackofficeSidebar({
             </div>
 
             <div className="flex flex-col pb-6">
-                {groups.map((group, groupIndex) => (
-                    <div
-                        key={group.label ?? groupIndex}
-                        className="flex flex-col"
-                    >
-                        {group.label ? (
-                            <div className="px-4 pt-5 pb-2 text-[11px] font-semibold tracking-widest text-sidebar-label uppercase">
-                                {group.label}
-                            </div>
-                        ) : (
-                            <div className="h-3" />
-                        )}
-                        <ul className="flex flex-col">
-                            {group.items
-                                .filter((item) => isAdmin || !item.isAdminOnly)
-                                .map((item) => {
-                                    const isItemActive = isActive(item);
-                                    const Icon = item.icon;
+                {/* A group whose items are all admin-only disappears for the other roles. */}
+                {groups
+                    .filter((group) =>
+                        group.items.some(
+                            (item) => isAdmin || !item.isAdminOnly,
+                        ),
+                    )
+                    .map((group, groupIndex) => (
+                        <div
+                            key={group.label ?? groupIndex}
+                            className="flex flex-col"
+                        >
+                            {group.label ? (
+                                <div className="px-4 pt-5 pb-2 text-[11px] font-semibold tracking-widest text-sidebar-label uppercase">
+                                    {group.label}
+                                </div>
+                            ) : (
+                                <div className="h-3" />
+                            )}
+                            <ul className="flex flex-col">
+                                {group.items
+                                    .filter(
+                                        (item) => isAdmin || !item.isAdminOnly,
+                                    )
+                                    .map((item) => {
+                                        const isItemActive = isActive(item);
+                                        const Icon = item.icon;
 
-                                    return (
-                                        <li key={item.label}>
-                                            {item.href ? (
-                                                <Link
-                                                    href={item.href}
-                                                    prefetch
-                                                    onClick={onClose}
-                                                    aria-current={
-                                                        isItemActive
-                                                            ? 'page'
-                                                            : undefined
-                                                    }
-                                                    className={cn(
-                                                        itemClasses,
-                                                        isItemActive
-                                                            ? 'font-medium text-white'
-                                                            : 'text-sidebar-item hover:bg-sidebar-active/40 hover:text-white',
-                                                    )}
-                                                >
-                                                    <Icon
-                                                        strokeWidth={1.5}
-                                                        aria-hidden
+                                        return (
+                                            <li key={item.label}>
+                                                {item.href ? (
+                                                    <Link
+                                                        href={item.href}
+                                                        prefetch
+                                                        onClick={onClose}
+                                                        aria-current={
+                                                            isItemActive
+                                                                ? 'page'
+                                                                : undefined
+                                                        }
                                                         className={cn(
-                                                            isItemActive &&
-                                                                'text-sidebar-icon-active',
+                                                            itemClasses,
+                                                            isItemActive
+                                                                ? 'font-medium text-white'
+                                                                : 'text-sidebar-item hover:bg-sidebar-active/40 hover:text-white',
                                                         )}
-                                                    />
-                                                    {item.label}
-                                                </Link>
-                                            ) : (
-                                                <span
-                                                    aria-disabled="true"
-                                                    title="Bientôt disponible"
-                                                    className={cn(
-                                                        itemClasses,
-                                                        'text-sidebar-label',
-                                                    )}
-                                                >
-                                                    <Icon
-                                                        strokeWidth={1.5}
-                                                        aria-hidden
-                                                    />
-                                                    {item.label}
-                                                </span>
-                                            )}
-                                        </li>
-                                    );
-                                })}
-                            {group.label === 'Système' ? (
-                                <li>
-                                    <Link
-                                        href={logout()}
-                                        as="button"
-                                        className={cn(
-                                            itemClasses,
-                                            'text-sidebar-item hover:bg-sidebar-active/40 hover:text-white',
-                                        )}
-                                    >
-                                        <LogOut strokeWidth={1.5} aria-hidden />
-                                        Se déconnecter
-                                    </Link>
-                                </li>
-                            ) : null}
-                        </ul>
-                    </div>
-                ))}
+                                                    >
+                                                        <Icon
+                                                            strokeWidth={1.5}
+                                                            aria-hidden
+                                                            className={cn(
+                                                                isItemActive &&
+                                                                    'text-sidebar-icon-active',
+                                                            )}
+                                                        />
+                                                        {item.label}
+                                                    </Link>
+                                                ) : (
+                                                    <span
+                                                        aria-disabled="true"
+                                                        title="Bientôt disponible"
+                                                        className={cn(
+                                                            itemClasses,
+                                                            'text-sidebar-label',
+                                                        )}
+                                                    >
+                                                        <Icon
+                                                            strokeWidth={1.5}
+                                                            aria-hidden
+                                                        />
+                                                        {item.label}
+                                                    </span>
+                                                )}
+                                            </li>
+                                        );
+                                    })}
+                            </ul>
+                        </div>
+                    ))}
             </div>
         </nav>
     );

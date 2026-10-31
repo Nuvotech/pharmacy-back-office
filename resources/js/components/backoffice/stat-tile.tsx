@@ -22,6 +22,8 @@ type StatTileProps = {
     href?: NonNullable<InertiaLinkProps['href']>;
     /** Compact KPI (value 20 px, no minimum height) instead of the large one (24 px). */
     isCompact?: boolean;
+    /** Six in a row (dashboard): 20 px padding, value 18 px until the widest screens. */
+    isDense?: boolean;
     /** Kept for existing call sites: labels are always the muted KPI label now. */
     isLabelMuted?: boolean;
     /** Layout overrides, e.g. a flex basis. */
@@ -38,10 +40,12 @@ export function StatTile({
     tone = 'plain',
     href,
     isCompact = false,
+    isDense = false,
     className: extraClassName,
 }: StatTileProps) {
     const className = cn(
-        'flex flex-col gap-3 rounded-card bg-surface p-6 shadow-card',
+        'flex h-full min-w-0 flex-col rounded-card bg-surface shadow-card',
+        isDense ? 'gap-2 p-5' : 'gap-3 p-6',
         href &&
             'transition-colors hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
         extraClassName,
@@ -53,14 +57,21 @@ export function StatTile({
             </span>
             <span
                 className={cn(
-                    'font-semibold tabular-nums',
-                    isCompact ? 'text-xl leading-7' : 'text-2xl leading-8',
+                    'font-semibold whitespace-nowrap tabular-nums',
+                    isDense
+                        ? 'text-xl leading-7 xl:text-lg 2xl:text-xl'
+                        : isCompact
+                          ? 'text-xl leading-7'
+                          : 'text-2xl leading-8',
                     valueToneClasses[tone],
                 )}
             >
                 {value}
             </span>
-            {sub ? <span className="text-sm text-ink-muted">{sub}</span> : null}
+            {/* Pinned to the bottom, so tiles in a row line up even when a label wraps. */}
+            {sub ? (
+                <span className="mt-auto text-sm text-ink-muted">{sub}</span>
+            ) : null}
         </>
     );
 

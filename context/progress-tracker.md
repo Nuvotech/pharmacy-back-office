@@ -290,7 +290,11 @@ change.
   padding), StatTile (KPI variant A, white with a coloured value), Button (38 px, secondary slate-100), fields
   and search (38 px, slate-300 border, blue focus ring), DataTable (slate-50 header, no row dividers, hover),
   Badge (22 px), filter pills, pagination footer, stepper. The dashboard no longer repeats the user in its
-  header.
+  header. "Profil" (was "Paramètres" in the sidebar) and "Se déconnecter" are in the top bar's user menu
+  (`components/backoffice/user-menu.tsx`, avatar on the right); the sidebar's "Système" keeps Utilisateurs
+  (admins only, so the group is hidden for pharmacists); "Synchronisation" was removed. The pharmacy name in
+  the sidebar, the small-screen top bar and the login comes from `APP_NAME` (shared `name` prop,
+  `usePharmacyName()` in `lib/pharmacy.ts`).
 
 - Inventory follow-up (your choices, 30/10/2026): the shelf ("Rayon") is kept on the medicine
   (`medicines.shelf`, migration `add_shelf_to_medicines`), set in the medicine form and by the stock import's
@@ -318,6 +322,12 @@ change.
   medicine sheet on validation.
 
 ## Session Notes
+
+- pharm-app Android builds (EAS): `eas.json` has `preview` (internal APK) and `production` (internal APK, version
+  code auto-incremented) profiles, both with `EXPO_PUBLIC_API_URL=https://pharmacy.nuvotech.co.za` (`.env.local`
+  is git-ignored, so cloud builds don't see it). `app.json` → `android.package` `za.co.nuvotech.pharmacy`
+  (can't change once installed on devices). Build: `npx eas-cli@21 login`, `npx eas-cli@21 init` (once), then
+  `npm run build:android:preview`. An APK build has the SQLite module, unlike Expo Go.
 
 - Deployment: create the real administrator with `php artisan pharmacy:create-admin` (asks name, e-mail,
   password twice, and optionally a tablet username + PIN; strong passwords in production). Then deactivate

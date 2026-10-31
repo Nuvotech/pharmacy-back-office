@@ -89,7 +89,7 @@ class MedicineController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('medicines.updated', locale: 'fr')]);
 
-        return to_route('medicines.edit', $medicine);
+        return to_route('medicines.index');
     }
 
     /**

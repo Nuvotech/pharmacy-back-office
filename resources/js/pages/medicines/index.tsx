@@ -1,9 +1,9 @@
 import { Link, router } from '@inertiajs/react';
-import { Plus } from 'lucide-react';
+import { Pencil, Plus } from 'lucide-react';
 import { useEffect, useId, useRef, useState } from 'react';
 import { Badge } from '@/components/backoffice/badge';
 import type { BadgeTone } from '@/components/backoffice/badge';
-import { ButtonLink } from '@/components/backoffice/button';
+import { ButtonLink, iconButtonClasses } from '@/components/backoffice/button';
 import { Card } from '@/components/backoffice/card';
 import { CellLines, DataTable } from '@/components/backoffice/data-table';
 import type { DataTableColumn } from '@/components/backoffice/data-table';
@@ -149,13 +149,14 @@ const columns: DataTableColumn<MedicineRow>[] = [
         width: '70px',
         isHeaderHidden: true,
         render: (medicine) => (
-            <div className="text-right">
+            <div className="flex justify-end">
                 <Link
                     href={edit(medicine.id)}
-                    className="text-[13px] font-semibold text-primary hover:text-primary-hover"
+                    className={iconButtonClasses}
                     aria-label={`Modifier ${medicine.name}`}
+                    title="Modifier"
                 >
-                    Modifier
+                    <Pencil className="size-5" strokeWidth={1.5} aria-hidden />
                 </Link>
             </div>
         ),
